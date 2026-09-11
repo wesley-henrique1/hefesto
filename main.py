@@ -1,8 +1,8 @@
 from src.lib.caminhos import _Imagens, _Icone
+import webbrowser
 import tkinter as tk
 import customtkinter as ctk
-from tkinter import messagebox
-from PIL import Image, ImageTk
+from PIL import Image
 
 class __auxiliares:
     def FUNC_Iniciar(self):
@@ -13,6 +13,8 @@ class __auxiliares:
         print("demandas 3... 2.. 1...")
     def FUNC_config(self):
         print("config 3... 2.. 1...")
+    def AbrirGIT(self, event=None):
+        webbrowser.open("https://github.com/wesley-henrique1")
 
 class Main(__auxiliares):
     def __init__(self):
@@ -59,15 +61,14 @@ class Main(__auxiliares):
             text_color= self.preto,
             anchor= "center",
         )
-        self.logArquivo = tk.Text(
+        self.logArquivo = ctk.CTkTextbox(
             tela,
-            background= self.branco,
+            fg_color= self.branco,
             font= (self.familia, 12),
-            wrap= "word",
-            height= 8,
-            borderwidth= 3,
-            relief="solid",
-            blockcursor= False,
+
+            border_color= self.preto,
+            border_width= 3,
+            border_spacing= 4,
             state= 'disabled'
         )
         self.painel = ctk.CTkFrame(
@@ -83,6 +84,8 @@ class Main(__auxiliares):
             image=self.icone_imagem,
             fg_color=self.marrom
         )
+        self.label_imagem.bind("<Button-1>", self.AbrirGIT)
+        self.label_imagem.configure(cursor="hand2")
         pass
     def __clicaveis(self):
         tela = self.painel
