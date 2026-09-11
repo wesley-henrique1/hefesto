@@ -24,6 +24,7 @@ class _Imagens(_Caminho):
     bigorna = imagem / "bigorna.png"
     blocoNotas = imagem / "bloco_notas.png"
     engrenagem = imagem / "engrenagem.png"
+    logoPy = imagem / "logo_python.png"
     perfil = imagem / "perfil.png"
     
     pass

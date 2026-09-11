@@ -1,12 +1,13 @@
 from src.lib.caminhos import _Imagens, _Icone
 import webbrowser
-import tkinter as tk
 import customtkinter as ctk
 from PIL import Image
 
 class __auxiliares:
     def FUNC_Iniciar(self):
         print("iniciar 3... 2.. 1...")
+    def FUNC_Limpar(self):
+        print("Limpando...")
     def FUNC_bot(self):
         print("bot 3... 2.. 1...")
     def FUNC_demandas(self):
@@ -31,9 +32,9 @@ class Main(__auxiliares):
         root.iconbitmap(_Icone.perfil)
         root.resizable(False, False)
 
-        self.ImagemOrigem = Image.open(_Imagens.perfil)
 
         self.__Componentes(root)
+        self.__TelasImgs()
         self.__clicaveis()
         self.__localizador()
         root.mainloop()
@@ -72,19 +73,41 @@ class Main(__auxiliares):
             border_width= 3,
             border_color= self.preto,
         )
-        self.icone_imagem = ctk.CTkImage(
-            light_image= self.ImagemOrigem,
-            dark_image= self.ImagemOrigem,
-            size=(139, 139)
+        pass
+    def __TelasImgs(self):
+        self.logoPy = ctk.CTkImage(
+            light_image= Image.open(_Imagens.logoPy),
+            dark_image= Image.open(_Imagens.logoPy),
+            size= (140, 140)
         )
-        self.label_imagem = ctk.CTkLabel(
+        self.labelLogo = ctk.CTkLabel(
+            self.painel,
+            text="",
+            image=self.logoPy,
+            fg_color=self.marrom,
+            corner_radius= 0,
+            padx= 0,
+            pady= 0
+        )
+
+        self.icone_imagem = ctk.CTkImage(
+            light_image= Image.open(_Imagens.perfil),
+            dark_image= Image.open(_Imagens.perfil),
+            size=(140, 140)
+        )
+        self.labelPerfil = ctk.CTkLabel(
             self.painel,
             text="",
             image=self.icone_imagem,
-            fg_color=self.marrom
+            fg_color=self.marrom,
+            corner_radius= 0,
+            padx= 0,
+            pady= 0
+
         )
-        self.label_imagem.bind("<Button-1>", self.AbrirGIT)
-        self.label_imagem.configure(cursor="hand2")
+        self.labelPerfil.bind("<Button-1>", self.AbrirGIT)
+        self.labelPerfil.configure(cursor="hand2")
+
         pass
     def __clicaveis(self):
         tela = self.painel
@@ -97,6 +120,15 @@ class Main(__auxiliares):
             fg_color= self.branco,
             border_width= 3,
             command= self.FUNC_Iniciar
+        )
+        self.btLimpar = ctk.CTkButton(
+            tela,
+            text= "Limpar",
+            font= (self.familia, 14, 'bold'),
+            text_color= self.preto,
+            fg_color= self.branco,
+            border_width= 3,
+            command= self.FUNC_Limpar
         )
         self.btBots = ctk.CTkButton(
             tela,
@@ -133,12 +165,15 @@ class Main(__auxiliares):
         self.painel.place(rely=0.02, relx=0.81, relwidth=0.18, relheight=0.97)
 
         # Painel dos Botões (posicionados dentro do self.painel)
-        self.btIniciar.place(rely=0.04, relx=0.04, relwidth=0.92, relheight=0.08)
-        self.btBots.place(rely=0.14, relx=0.04, relwidth=0.92, relheight=0.08)
-        self.btDemandas.place(rely=0.24, relx=0.04, relwidth=0.92, relheight=0.08)        
-        self.btConfig.place(rely=0.34, relx=0.04, relwidth=0.92, relheight=0.08)
+        self.btIniciar.place(rely=0.02, relx=0.04, relwidth=0.92, relheight=0.08)
+        self.btLimpar.place(rely=0.11, relx=0.04, relwidth=0.92, relheight=0.08)
+        self.btBots.place(rely=0.20, relx=0.04, relwidth=0.92, relheight=0.08)
+        self.btDemandas.place(rely=0.29, relx=0.04, relwidth=0.92, relheight=0.08)        
+        self.btConfig.place(rely=0.38, relx=0.04, relwidth=0.92, relheight=0.08)
 
-        self.label_imagem.place(rely=0.74, relx=0.02, relwidth=0.96, relheight=0.25)
+        self.labelLogo.place(rely=0.48, relx=0.02, relwidth=0.96, relheight=0.25)
+        self.labelPerfil.place(rely=0.74, relx=0.02, relwidth=0.96, relheight=0.25)
+
         pass
 
 if __name__ == '__main__':
