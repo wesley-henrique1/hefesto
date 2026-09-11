@@ -31,12 +31,7 @@ class Main(__auxiliares):
         root.iconbitmap(_Icone.perfil)
         root.resizable(False, False)
 
-        ImagemOrigem = Image.open(_Imagens.perfil)
-        self.icone_imagem = ctk.CTkImage(
-            light_image=ImagemOrigem,
-            dark_image=ImagemOrigem,
-            size=(139, 139)
-        )
+        self.ImagemOrigem = Image.open(_Imagens.perfil)
 
         self.__Componentes(root)
         self.__clicaveis()
@@ -77,7 +72,11 @@ class Main(__auxiliares):
             border_width= 3,
             border_color= self.preto,
         )
-
+        self.icone_imagem = ctk.CTkImage(
+            light_image= self.ImagemOrigem,
+            dark_image= self.ImagemOrigem,
+            size=(139, 139)
+        )
         self.label_imagem = ctk.CTkLabel(
             self.painel,
             text="",
