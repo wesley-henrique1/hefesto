@@ -31,10 +31,12 @@ class _Imagens(_Caminho):
 class _DataBase(_Caminho):
     dataBase = _Caminho.bancoDados
 
-    botdb = dataBase / "botDB.db"
     errosdb = dataBase / "errosDb.db"
+
+    botdb = dataBase / "botDB.db"
     modDb = dataBase / "modDB.db"
     taskDb = dataBase / "tarefadb.db"
+    rotadb = dataBase / "rotasdb.db"
 
 if __name__ == "__main__":
     ancora = _Caminho()

@@ -51,6 +51,9 @@ class  auxiliares:
                     self.bots.Consultas(telas=self.telaAlterar)
                 case "TESK":
                     self.tesk.Consultas(telas=self.telaAlterar)
+                case "ROTAS":
+                    self.rota.Consultas(telas=self.telaAlterar)
+
                 case _:
                     print("Desconhecido")
         except Exception as e:
@@ -65,6 +68,9 @@ class  auxiliares:
                     self.bots.Editar(telas=self.telaAlterar)
                 case "TESK":
                     self.tesk.Editar(telas=self.telaAlterar)
+                case "ROTAS":
+                    self.rota.Editar(telas=self.telaAlterar)
+
                 case _:
                     print("Desconhecido")
         except Exception as e:
@@ -79,6 +85,9 @@ class  auxiliares:
                     self.bots.Cadastrar(telas=self.telaAlterar)
                 case "TESK":
                     self.tesk.Cadastrar(telas=self.telaAlterar)
+                case "ROTAS":
+                    self.rota.Cadastrar(telas=self.telaAlterar)
+
                 case _:
                     print("Desconhecido")
         except Exception as e:
@@ -93,6 +102,8 @@ class  auxiliares:
                     self.bots.Apagar(telas=self.telaAlterar)
                 case "TESK":
                     self.tesk.Apagar(telas=self.telaAlterar)
+                case "ROTAS":
+                    self.rota.Apagar(telas=self.telaAlterar)
                 case _:
                     print("Desconhecido")
         except Exception as e:
@@ -118,6 +129,7 @@ class Menu(auxiliares):
         self.modulo = CRUD_(base= "modulos")
         self.bots = CRUD_(base= "bots")
         self.tesk = CRUD_(base= "task")
+        self.rota = CRUD_(base= "rota")
         self.__componentes(root)
         self.__clicaveis()
         self.__BoxFlegs()
@@ -238,7 +250,7 @@ class Menu(auxiliares):
         self.boxRotasdf = ctk.CTkRadioButton(
             self.telasFlegs,
             text= "Rotas dados",
-            value= "rotas",
+            value= "ROTAS",
             variable= self.radioVar,
             text_color= self.preto,
             hover_color= self.vermelho,

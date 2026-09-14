@@ -1,9 +1,10 @@
 import customtkinter as ctk
 import json
+from pathlib import Path
 from tkinter import messagebox as msg
 from typing import Literal
 
-from lib.admDB import CRUD_DB, Task_DB 
+from lib.admDB import CRUD_DB, Task_DB, path_DB
 from lib.modErros import ModularErros
 
 validador = ModularErros(fonte= "GUI - Modulos")
@@ -15,6 +16,9 @@ class  auxiliares:
         pass
     def _limitar_tamanho(self, texto, limite):
         return len(texto) <= limite
+    def _TextCampo(self):
+        msg.showerror("ERRO", f"Erro: Todos os campos de texto devem ser preenchidos!")
+        print("Erro: Todos os campos de texto devem ser preenchidos!")
 
     def _LImpar(self, estado):
         self.entryID.delete(0, 'end')
@@ -51,6 +55,18 @@ class  auxiliares:
             self.boxEstado.configure(state="normal")
             self.entryClasse.configure(state="disabled")
             pass
+        elif self.base == 'rota':
+            self.entryDesc.delete(0, 'end')
+            valor = Path(Mapa[chave]["PATH"])
+            self.entryDesc.insert(0, valor.name)
+            self.entryModulo.delete(0, 'end')
+            calor = Mapa[chave]["VARIAVEL"]
+            self.entryModulo.insert(0, calor)
+            estado.set(Mapa[chave]["ESTADO"])
+            
+            self.boxEstado.configure(state="normal")
+            self.entryClasse.configure(state="disabled")
+
         else:
             self.entryDesc.delete(0, 'end')
             self.entryDesc.insert(0, Mapa[chave]["_Nomenclatura"])
@@ -66,7 +82,7 @@ class  auxiliares:
         pass
     pass
 class CRUD_(auxiliares):
-    def __init__(self, base= Literal["modulos", "bots", "task"]):
+    def __init__(self, base= Literal["modulos", "bots", "task", "rota"]):
         self.etapa = None
 
         self.marrom = "#8a541f"
@@ -79,6 +95,7 @@ class CRUD_(auxiliares):
         self.base = base
         self.ancoraDB = CRUD_DB(base= base)
         self.ancoraTesk = Task_DB()
+        self.ancoraRota = path_DB()
         
         self.meu_estado_var = ctk.StringVar(value= "0")
         pass
@@ -86,13 +103,20 @@ class CRUD_(auxiliares):
     def __Contructor(self, telas, Mapa):
         if self.base == 'task':
             desc = "Tarefa"
-            mod = "Dias [EX: 2,5" \
-            "]"
+            mod = "Dias [EX: 2,5]"
             valor = "disabled"
+            limite = 22
+        elif self.base == 'rota':
+            desc = "Path"
+            mod = "Variavel"
+            valor = "disabled"
+            limite = 10000
         else:
             desc = "Nomeclatura"
             mod = "Modulo"
             valor = "normal"
+            limite = 22
+
         self.entryID = ctk.CTkEntry(
             telas,
             placeholder_text= "Codigo",
@@ -113,7 +137,7 @@ class CRUD_(auxiliares):
             border_color= self.preto,
             fg_color= self.branco,
             validate='key',
-            validatecommand= (telas.register(lambda texto: self._limitar_tamanho(texto, 22)), '%P')
+            validatecommand= (telas.register(lambda texto: self._limitar_tamanho(texto, limite)), '%P')
         )
         self.entryModulo = ctk.CTkEntry(
             telas,
@@ -184,7 +208,7 @@ class CRUD_(auxiliares):
 
         # Locaziador dos componentes
         self.entryID.place_configure(relx= 0.02, rely= 0.04, relheight= 0.20, relwidth= 0.24)
-        self.entryDesc.place_configure(relx= 0.28, rely= 0.04, relheight= 0.20, relwidth= 0.60)
+        self.entryDesc.place_configure(relx= 0.28, rely= 0.04, relheight= 0.20, relwidth= 0.70)
         self.entryModulo.place_configure(relx= 0.02, rely= 0.28, relheight= 0.20, relwidth= 0.30)
         self.entryClasse.place_configure(relx= 0.34, rely= 0.28, relheight= 0.20, relwidth= 0.30)
         self.boxEstado.place_configure(relx= 0.02, rely= 0.50, relheight= 0.20, relwidth= 0.40)
@@ -205,9 +229,11 @@ class CRUD_(auxiliares):
             match contrato:
                 case "Apagar":
                     if self.base == 'task':
-                        valor = self.ancoraDB.DeletarVlr((chave,))
-                    else:
                         valor = self.ancoraTesk.DeletarVlr((chave,))
+                    elif self.base == 'rota':
+                        valor = self.ancoraRota.DeletarVlr((chave,))
+                    else:
+                        valor = self.ancoraDB.DeletarVlr((chave,))
                     if valor:
                         msg.showinfo("FEITO", f"Registro '{chave}' apagado com sucesso!")
                         print(f"Registro '{chave}' apagado com sucesso!")
@@ -217,14 +243,16 @@ class CRUD_(auxiliares):
                 case "cadastrar" | "editar":
                     if self.base == 'task':
                         self.entryClasse.configure(state="disabled")
+
                         nome = self.entryDesc.get().strip()
+                        estado = self.boxEstado.get()
+
                         texto_usuario = self.entryModulo.get().strip()
                         dias_lista = [int(dia.strip()) for dia in texto_usuario.split(",") if dia.strip()]
                         dias = json.dumps(dias_lista)
-                        estado = self.boxEstado.get()
+
                         if not nome or not dias:
-                            msg.showerror("ERRO", f"Erro: Todos os campos de texto devem ser preenchidos!")
-                            print("Erro: Todos os campos de texto devem ser preenchidos!")
+                            self._TextCampo()
                             return
                         
                         if contrato == "cadastrar":
@@ -236,6 +264,25 @@ class CRUD_(auxiliares):
                             self.ancoraTesk.EditarVlr((nome, dias, estado, chave,))
                             msg.showinfo("FEITO", f"Registro '{chave}' atualizado com sucesso!")
                             print(f"Registro '{chave}' atualizado com sucesso!")
+                        pass
+                    elif self.base == 'rota':
+                        self.entryClasse.configure(state="disabled")
+                        path = self.entryDesc.get().strip()
+                        var = self.entryModulo.get()
+                        estado = self.boxEstado.get()
+                        if not path or not var:
+                            self._TextCampo()
+                            return
+                        if contrato == "cadastrar":
+                            self.ancoraRota.InserirVle((chave, var, path, estado,))
+                            msg.showinfo("FEITO", f"Registro '{chave}' cadastrado com sucesso!")
+                            print(f"Registro '{chave}' cadastrado com sucesso!")
+                        
+                        elif contrato == "editar":
+                            self.ancoraRota.EditarVlr((var, path, estado, chave,))
+                            msg.showinfo("FEITO", f"Registro '{chave}' atualizado com sucesso!")
+                            print(f"Registro '{chave}' atualizado com sucesso!")
+                        pass
                     else: 
                         nome = self.entryDesc.get().strip()
                         modulo = self.entryModulo.get().strip()
@@ -243,8 +290,7 @@ class CRUD_(auxiliares):
                         estado = self.boxEstado.get()
 
                         if not nome or not modulo or not clase:
-                            msg.showerror("ERRO", f"Erro: Todos os campos de texto devem ser preenchidos!")
-                            print("Erro: Todos os campos de texto devem ser preenchidos!")
+                            self._TextCampo()
                             return
                         
                         if contrato == "cadastrar":
@@ -279,6 +325,28 @@ class CRUD_(auxiliares):
                 if mapa:
                     for chave in mapa.keys():
                         linha = f"{chave:<7} | {mapa[chave]['NOME']:<30} | {mapa[chave]['DIAS']:<14} | {mapa[chave]['ESTADO']:^6}\n"
+                        if mapa[chave]['ESTADO'] == '1':
+                            on.append(mapa[chave]['ESTADO'])
+                        elif mapa[chave]['ESTADO'] == '0':
+                            off.append(mapa[chave]['ESTADO'])
+                        tabela += linha
+                else:
+                    linha = f"{'TASK000':<7} | {'BASE VAZIA':<30} | {'SEM REGISTRO':<14}| {'-':^6}\n"
+                    tabela += linha 
+            elif self.base == 'rota':
+                mapa = self.ancoraRota.BuscarVlr()
+                on = []
+                off = []
+                coluna = f"{'CHAVE':^7} | {'PATH':^30} | {'VARIAVEL':^14} | {'Estado':^6}\n"
+                separador = "-" * 75
+                tabela = coluna + separador + "\n"
+                if mapa:
+                    for chave in mapa.keys():
+                        path = mapa[chave]['PATH']
+                        caminho = Path(path)
+                        nome = caminho.name
+                        path_formatado = f"{nome[:27]}..." if len(nome) > 30 else f"{nome:<30}"
+                        linha = f"{chave:<7} | {path_formatado:<30} | {mapa[chave]['VARIAVEL']:<14} | {mapa[chave]['ESTADO']:^6}\n"
                         if mapa[chave]['ESTADO'] == '1':
                             on.append(mapa[chave]['ESTADO'])
                         elif mapa[chave]['ESTADO'] == '0':
@@ -340,6 +408,8 @@ class CRUD_(auxiliares):
             self.etapa = "editar"
             if self.base == 'task':
                 mapa = self.ancoraTesk.BuscarVlr()
+            elif self.base == 'rota':
+                mapa = self.ancoraRota.BuscarVlr()
             else:
                 mapa = self.ancoraDB.BuscarVlr()
 
@@ -353,6 +423,8 @@ class CRUD_(auxiliares):
             self.etapa = "cadastrar"
             if self.base == 'task':
                 mapa = self.ancoraTesk.BuscarVlr()
+            elif self.base == 'rota':
+                mapa = self.ancoraRota.BuscarVlr()
             else:
                 mapa = self.ancoraDB.BuscarVlr()
 
@@ -376,6 +448,8 @@ class CRUD_(auxiliares):
                     keys = "BOT_"
                 case "task":
                     keys = "TAR_"
+                case "rota":
+                    keys = "ARQ_"
 
             self.entryID.insert(0, f"{keys}{maior+1:03d}")
             self.entryID.configure(state="disabled")
@@ -389,6 +463,8 @@ class CRUD_(auxiliares):
             self.etapa = "Apagar"
             if self.base == 'task':
                 mapa = self.ancoraTesk.BuscarVlr()
+            elif self.base == 'rota':
+                mapa = self.ancoraRota.BuscarVlr()
             else:
                 mapa = self.ancoraDB.BuscarVlr()
 
