@@ -1,6 +1,6 @@
 import datetime as dt
 from tkinter import messagebox
-from .admDB import ErroDB
+from src.lib.admDB import ErroDB
 
 class ModularErros:
     def __init__(self, e=None, etapas=None, fonte="ModuloExterno"):

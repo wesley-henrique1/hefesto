@@ -1,13 +1,7 @@
+from src.lib.settings import _Icone
+from src.lib.modErros import ModularErros
+from .crud_gui import CRUD_
 import customtkinter as ctk
-import sys
-import os
-
-# Adiciona a pasta 'src' ao caminho do Python para permitir testes isolados
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-# A partir daqui, as importações funcionam normalmente
-from views.crud_gui import CRUD_
-from lib.modErros import ModularErros
 
 validador = ModularErros(fonte= "MENU")
 class  auxiliares:
@@ -118,11 +112,12 @@ class Menu(auxiliares):
         self.vermelho = "#8e3312"
         self.familia = "Consolas"
 
-        root = ctk.CTk()
+        root = ctk.CTkToplevel()
+        root.attributes("-topmost", True)
         root.title("CONFIGURAR")
         root.geometry("572x400")
         root.configure(fg_color=self.marromClaro)
-        # root.iconbitmap(_Icone.perfil)
+        root.iconbitmap(_Icone.engrenagem)
         root.resizable(False, False)
         self.radioVar = ctk.StringVar(value= "COMANDOS")
         
@@ -277,6 +272,3 @@ class Menu(auxiliares):
         self.boxRotasdf.place_configure(relx= 0.77, rely= 0.50, relwidth= 0.22, relheight= 0.20)
         self.btDesmarcar.place_configure(relx= 0.01, rely= 0.75, relwidth= 0.22, relheight= 0.20)
         pass
-
-if __name__ == "__main__":
-    Menu()

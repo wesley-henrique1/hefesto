@@ -1,4 +1,5 @@
-from lib.settings import _Imagens, _Icone
+from src.lib.settings import _Imagens, _Icone
+from src.views.menu import Menu
 import webbrowser
 import customtkinter as ctk
 from PIL import Image
@@ -13,7 +14,8 @@ class __auxiliares:
     def FUNC_demandas(self):
         print("demandas 3... 2.. 1...")
     def FUNC_config(self):
-        print("config 3... 2.. 1...")
+        Menu()
+
     def AbrirGIT(self, event=None):
         webbrowser.open("https://github.com/wesley-henrique1")
 
@@ -26,12 +28,12 @@ class Main(__auxiliares):
         self.familia = "Consolas"
 
         root = ctk.CTk()
+        
         root.title("Gerenciador_8000")
         root.geometry("800x600")
         root.configure(fg_color=self.marromClaro)
         root.iconbitmap(_Icone.perfil)
         root.resizable(False, False)
-
 
         self.__Componentes(root)
         self.__TelasImgs()

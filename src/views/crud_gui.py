@@ -4,8 +4,8 @@ from pathlib import Path
 from tkinter import messagebox as msg
 from typing import Literal
 
-from lib.admDB import CRUD_DB, Task_DB, path_DB
-from lib.modErros import ModularErros
+from src.lib.admDB import CRUD_DB, Task_DB, path_DB
+from src.lib.modErros import ModularErros
 
 validador = ModularErros(fonte= "GUI - Modulos")
 class  auxiliares:
@@ -21,20 +21,27 @@ class  auxiliares:
         print("Erro: Todos os campos de texto devem ser preenchidos!")
 
     def _LImpar(self, estado):
-        self.entryID.delete(0, 'end')
-        self.entryDesc.delete(0, 'end')
-        self.entryModulo.delete(0, 'end')
-        self.entryClasse.delete(0, 'end')
-
         self.entryDesc.configure(state="normal")
         self.entryModulo.configure(state="normal")
         self.entryClasse.configure(state="normal")
         self.boxEstado.configure(state="normal")
         self.btAplicar.configure(state="normal")
 
+        self.entryID.delete(0, 'end')
+        self.entryDesc.delete(0, 'end')
+        self.entryModulo.delete(0, 'end')
+        self.entryClasse.delete(0, 'end')
+
+
         estado.set("0")
         pass
     def _Pesquisar(self, Mapa, estado):
+        if self.etapa == "Apagar":
+            self.entryDesc.configure(state="normal")
+            self.entryModulo.configure(state="normal")
+            self.entryClasse.configure(state="normal")
+            self.boxEstado.configure(state="normal")
+
         chave = self.entryID.get()
         if chave not in Mapa.keys():
             self.entryDesc.insert(0, "Codigo não encotrado")
@@ -79,6 +86,12 @@ class  auxiliares:
 
             estado.set(Mapa[chave]["_estado"])
             self.boxEstado.configure(state="normal")
+        if self.etapa == "Apagar":
+            self.entryDesc.configure(state="disabled")
+            self.entryModulo.configure(state="disabled")
+            self.entryClasse.configure(state="disabled")
+            self.boxEstado.configure(state="disabled")
+
         pass
     pass
 class CRUD_(auxiliares):
