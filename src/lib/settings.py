@@ -34,7 +34,7 @@ class _DataBase(_Caminho):
     botdb = dataBase / "botDB.db"
     errosdb = dataBase / "errosDb.db"
     modDb = dataBase / "modDB.db"
-    tarefasdb = dataBase / "tarefadb.db"
+    taskDb = dataBase / "tarefadb.db"
 
 if __name__ == "__main__":
     ancora = _Caminho()

@@ -49,6 +49,8 @@ class  auxiliares:
                     self.modulo.Consultas(telas=self.telaAlterar)
                 case "BOT":
                     self.bots.Consultas(telas=self.telaAlterar)
+                case "TESK":
+                    self.tesk.Consultas(telas=self.telaAlterar)
                 case _:
                     print("Desconhecido")
         except Exception as e:
@@ -61,6 +63,8 @@ class  auxiliares:
                     self.modulo.Editar(telas=self.telaAlterar)
                 case "BOT":
                     self.bots.Editar(telas=self.telaAlterar)
+                case "TESK":
+                    self.tesk.Editar(telas=self.telaAlterar)
                 case _:
                     print("Desconhecido")
         except Exception as e:
@@ -73,6 +77,8 @@ class  auxiliares:
                     self.modulo.Cadastrar(telas=self.telaAlterar)
                 case "BOT":
                     self.bots.Cadastrar(telas=self.telaAlterar)
+                case "TESK":
+                    self.tesk.Cadastrar(telas=self.telaAlterar)
                 case _:
                     print("Desconhecido")
         except Exception as e:
@@ -85,6 +91,8 @@ class  auxiliares:
                     self.modulo.Apagar(telas=self.telaAlterar)
                 case "BOT":
                     self.bots.Apagar(telas=self.telaAlterar)
+                case "TESK":
+                    self.tesk.Apagar(telas=self.telaAlterar)
                 case _:
                     print("Desconhecido")
         except Exception as e:
@@ -106,9 +114,10 @@ class Menu(auxiliares):
         # root.iconbitmap(_Icone.perfil)
         root.resizable(False, False)
         self.radioVar = ctk.StringVar(value= "COMANDOS")
+        
         self.modulo = CRUD_(base= "modulos")
         self.bots = CRUD_(base= "bots")
-
+        self.tesk = CRUD_(base= "task")
         self.__componentes(root)
         self.__clicaveis()
         self.__BoxFlegs()
