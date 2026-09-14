@@ -1,5 +1,6 @@
 from src.lib.settings import _Imagens, _Icone
 from src.views.menu import Menu
+from src.lib.admDB import CRUD_DB
 import webbrowser
 import customtkinter as ctk
 from PIL import Image
@@ -25,19 +26,24 @@ class Main(__auxiliares):
         self.marromClaro = "#d8a859"
         self.branco = "#ffffff"
         self.preto = "#000000"
+        self.vermelho = "#8e3312"
         self.familia = "Consolas"
 
         root = ctk.CTk()
-        
         root.title("Gerenciador_8000")
-        root.geometry("800x600")
+        root.geometry("700x500")
         root.configure(fg_color=self.marromClaro)
         root.iconbitmap(_Icone.perfil)
         root.resizable(False, False)
 
+        modulo = CRUD_DB(base= "modulos")
+        dicNome = modulo.BuscarVlr()
+        self.ListaBox = []
+
         self.__Componentes(root)
         self.__TelasImgs()
         self.__clicaveis()
+        self.__flegsMOD(dicNome)
         self.__localizador()
         root.mainloop()
         pass
@@ -80,7 +86,7 @@ class Main(__auxiliares):
         self.logoPy = ctk.CTkImage(
             light_image= Image.open(_Imagens.logoPy),
             dark_image= Image.open(_Imagens.logoPy),
-            size= (140, 140)
+            size= (130, 130)
         )
         self.labelLogo = ctk.CTkLabel(
             self.painel,
@@ -95,7 +101,7 @@ class Main(__auxiliares):
         self.icone_imagem = ctk.CTkImage(
             light_image= Image.open(_Imagens.perfil),
             dark_image= Image.open(_Imagens.perfil),
-            size=(140, 140)
+            size= (140, 140)
         )
         self.labelPerfil = ctk.CTkLabel(
             self.painel,
@@ -160,11 +166,43 @@ class Main(__auxiliares):
             command= self.FUNC_config
         )
         pass
+
+    def __flegsMOD(self, mapa: dict):
+        for chave in mapa.keys():
+            var_estado = ctk.StringVar(value="0")
+            boxNome = ctk.CTkCheckBox(
+                self.pipelines,
+                text=mapa[chave]['_Nomenclatura'],
+                variable=var_estado,
+                onvalue= "1",
+                offvalue= "0",
+                font=(self.familia, 16, 'bold'),
+                text_color=self.preto,
+                fg_color=self.vermelho,
+                hover_color=self.vermelho,
+                border_color=self.preto,
+            )
+            self.ListaBox.append({"checkbox": boxNome, "var": var_estado, "chave": chave})
+
+        pass
     def __localizador(self):
-        self.pipelines.place(rely=0.02, relx=0.01, relwidth=0.79, relheight=0.40)
-        self.contador.place(rely=0.44, relx=0.01, relwidth=0.79, relheight=0.10)
-        self.logArquivo.place(rely=0.56, relx=0.01, relwidth=0.79, relheight=0.43)
-        self.painel.place(rely=0.02, relx=0.81, relwidth=0.18, relheight=0.97)
+        self.pipelines.place(rely=0.02, relx=0.01, relwidth=0.77, relheight=0.40)
+        self.contador.place(rely=0.44, relx=0.01, relwidth=0.77, relheight=0.10)
+        self.logArquivo.place(rely=0.56, relx=0.01, relwidth=0.77, relheight=0.43)
+        self.painel.place(rely=0.02, relx=0.79, relwidth=0.20, relheight=0.97)
+
+        # Painel dos Pipelanes
+        startX = 0.02
+        startY = 0.02
+
+        for i, valor in enumerate(self.ListaBox, 1):
+            valor['checkbox'].place(rely=startY, relx=startX, relwidth=0.46, relheight=0.12)
+            
+            startY += 0.14
+            
+            if i % 6 == 0:
+                startX += 0.50
+                startY = 0.02
 
         # Painel dos Botões (posicionados dentro do self.painel)
         self.btIniciar.place(rely=0.02, relx=0.04, relwidth=0.92, relheight=0.08)
