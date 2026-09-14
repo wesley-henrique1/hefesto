@@ -1,4 +1,4 @@
-from src.lib.caminhos import _Imagens, _Icone
+from lib.settings import _Imagens, _Icone
 import webbrowser
 import customtkinter as ctk
 from PIL import Image

@@ -1,11 +1,75 @@
 import sqlite3
-from .caminhos import _DataBase
+from .settings import _DataBase
 
+class ErroDB:
+    def __init__(self):
+        self.erroDB = _DataBase.errosdb
+        self.NomeTabela = "errorTB"
+        self.dic = {
+            "PermissionError": "O arquivo está aberto por outro programa (como o Excel) ou você não tem permissão para acessá-lo. Feche o arquivo e tente novamente.",
+            "FileNotFoundError": "O arquivo de origem não foi encontrado no caminho especificado. Verifique se ele está na pasta correta.",
+            "EmptyDataError": "O arquivo encontrado está completamente vazio. Verifique a origem dos dados.",
+            "BadZipFile": "O arquivo Excel parece estar corrompido ou não foi baixado completamente.",
+            "KeyError": "Uma ou mais colunas obrigatórias não foram encontradas no arquivo de origem.",
+            "TypeError": "Incompatibilidade no tipo de dado detectada durante o processamento.",
+            "ValueError": "O formato de algum dado (como data ou número) está inválido ou fora do padrão esperado.",
+            "IndexError": "Tentativa de acessar uma linha ou coluna que não existe na planilha ou base de dados.",
+            "OperationalError": "Não foi possível conectar ao banco de dados. Verifique a rede ou se o servidor está ativo.",
+            "ProgrammingError": "Erro interno na estrutura da query SQL ou a tabela/coluna informada não existe.",
+            "IntegrityError": "Falha de integridade: tentativa de inserir um registro duplicado ou nulo onde não é permitido.",
+            "FailSafeException": "A automação foi interrompida de emergência porque o ponteiro do mouse foi movido para o canto da tela.",
+            "TclError": "Erro interno de renderização ou comportamento da interface gráfica.",
+            "NameError": "Uma variável, componente ou função interna foi chamada mas não foi definida no sistema.",
+            "ConnectionError": "Falha de conexão com a internet ou o servidor remoto recusou o acesso.",
+            "Timeout": "O servidor demorou muito para responder. A operação foi cancelada para evitar travamentos do sistema.",
+            "AttributeError": "O sistema tentou acessar uma propriedade ou função interna que não existe ou está indisponível.",
+            "Exception": "Ocorreu um erro inesperado no sistema. Entre em contato com o administrador."
+        }
+
+        pass
+
+    def __CriarTabela(self):
+        query = f"""
+        CREATE TABLE IF NOT EXISTS {self.NomeTabela} (
+            CHAVE TEXT PRIMARY KEY,
+            DESC TEXT NOT NULL);
+        """
+        return query
+    def _conectar(self):
+        query_select = f"SELECT CHAVE FROM {self.NomeTabela}"
+        query_insert = f"INSERT INTO {self.NomeTabela} (CHAVE, DESC) VALUES (?, ?)"
+        query_final = f"SELECT * FROM {self.NomeTabela}"
+
+        with sqlite3.connect(self.erroDB) as conn:
+            cursor = conn.cursor()
+            cursor.execute(self.__CriarTabela())
+
+            cursor.execute(query_select)
+            registros_existentes = cursor.fetchall()
+            chaves_no_banco = {linha[0] for linha in registros_existentes}
+
+            for chave, descricao in self.dic.items():
+                if chave not in chaves_no_banco:
+                    parametros = (
+                            chave, 
+                            descricao, 
+                        )
+                    cursor.execute(query_insert, parametros)
+            cursor.execute(query_final)
+            valor = cursor.fetchall()
+            return valor
+        pass
+
+class BotsDB:
+    def __init__(self):
+        self.moduloDB = _DataBase.botdb
+        self.NomeTabela = "botsTB"
+
+        pass
 class ModuloDB:
     def __init__(self):
         self.moduloDB = _DataBase.modDb
         self.NomeTabela = "modulosTB"
-        pass
 
         pass
     def __CriarTabela(self):
@@ -27,6 +91,8 @@ class ModuloDB:
             cursor.execute(sql, parametros)
             if retornar_linha:
                 return cursor.fetchall()
+            foi_alterado = cursor.rowcount > 0
+            return foi_alterado
 
     def BuscarVlr(self):
         dicionario = {}
@@ -48,6 +114,8 @@ class ModuloDB:
     def DeletarVlr(self, valor: tuple):
         query = f"DELETE FROM {self.NomeTabela} WHERE CHAVES = ?"
         self.__conectar(sql= query, parametros= valor)
+        sucesso = self.ancoraDB.DeletarVlr(('MOD_002',))
+        return sucesso
         pass
     def EditarVlr(self, valor: tuple):
         query = f"""

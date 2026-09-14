@@ -2,9 +2,11 @@ import customtkinter as ctk
 import sqlite3
 from tkinter import messagebox as msg
 from typing import Literal
+
 from lib.admDB import ModuloDB
+from lib.modErros import ModularErros
 
-
+validador = ModularErros(fonte= "GUI - Modulos")
 class  auxiliares:
     def _destroyer(self, telas: ctk.CTkLabel):
         telas.configure(fg_color= "#ffffff")
@@ -168,20 +170,23 @@ class Modulos(auxiliares):
 
         pass
     def _Aplicar(self, contrato: Literal["cadastrar", "editar", "Apagar"]):
-        chave = self.entryID.get().strip()
-
-        if not chave:
-            msg.showwarning("AVISO", "O campo ID (chave)  é obrigatório!")
-            print("Erro: O campo ID (Chave) é obrigatório!")
-            return
         try:
+            chave = self.entryID.get().strip()
+
+            if not chave:
+                msg.showwarning("AVISO", "O campo ID (chave)  é obrigatório!")
+                print("Erro: O campo ID (Chave) é obrigatório!")
+                return
             match contrato:
                 case "Apagar":
-                    self.ancoraDB.DeletarVlr((chave,))
-                    msg.showinfo("FEITO", f"Registro '{chave}' apagado com sucesso!")
-                    print(f"Registro '{chave}' apagado com sucesso!")
-
-                    pass
+                    valor = self.ancoraDB.DeletarVlr((chave,))
+                    if valor:
+                        msg.showinfo("FEITO", f"Registro '{chave}' apagado com sucesso!")
+                        print(f"Registro '{chave}' apagado com sucesso!")
+                    else:
+                        msg.showerror("Erro", f"Registro '{chave}' não foi encontrado na base de dados.")
+                        print(f"Aviso: Tentativa de apagar a chave '{chave}', mas ela não existe.")
+                        
                 case "cadastrar" | "editar":
                     nome = self.entryDesc.get().strip()
                     modulo = self.entryModulo.get().strip()
@@ -202,100 +207,108 @@ class Modulos(auxiliares):
                         self.ancoraDB.EditarVlr((nome, modulo, clase, estado, chave,))
                         msg.showinfo("FEITO", f"Registro '{chave}' atualizado com sucesso!")
                         print(f"Registro '{chave}' atualizado com sucesso!")
-        except sqlite3.IntegrityError:
-            msg.showerror("Erro", "Esta chave já está cadastroada, favor clicar de novo no botão")
-        
-        self.entryID.delete(0, "end")
-        self.entryDesc.delete(0, "end")
-        self.entryModulo.delete(0, 'end')
-        self.entryClasse.delete(0, 'end')
-        self.meu_estado_var.set("0")
+
+            self.entryID.delete(0, "end")
+            self.entryDesc.delete(0, "end")
+            self.entryModulo.delete(0, 'end')
+            self.entryClasse.delete(0, 'end')
+            self.meu_estado_var.set("0")
+        except Exception as e:
+            validador.registrar_log(e, "Consultas")
 
     def Consultas(self, telas: ctk.CTkLabel):
-        self._destroyer(telas)
-        telas.configure(fg_color= self.marromClaro)
-        mapa = self.ancoraDB.BuscarVlr()
-        on = []
-        off = []
-        coluna = f"{'CHAVE':^7} | {'Nomenclatura':^22} | {'Modulo':^14} | {'Classe':^14} | {'Estado':^6}\n"
-        separador = "-" * 75
-        tabela = coluna + separador + "\n"
-        if mapa:
-            for chave in mapa.keys():
-                linha = f"{chave:<7} | {mapa[chave]['_Nomenclatura']:<22} | {mapa[chave]['_Modulo']:<14} | {mapa[chave]['_classes']:<14} | {mapa[chave]['_estado']:^6}\n"
-                if mapa[chave]['_estado'] == '1':
-                    on.append(mapa[chave]['_estado'])
-                elif mapa[chave]['_estado'] == '0':
-                    off.append(mapa[chave]['_estado'])
-                tabela += linha
-        else:
-            linha = f"{'MOD_000':<7} | {'BASE VAZIA':<22} | {'SEM REGISTRO':<14} | {'-':<14} | {'-':^6}\n"
-            tabela += linha 
+        try:
+            self._destroyer(telas)
+            telas.configure(fg_color= self.marromClaro)
+            mapa = self.ancoraDB.BuscarVlr()
+            on = []
+            off = []
+            coluna = f"{'CHAVE':^7} | {'Nomenclatura':^22} | {'Modulo':^14} | {'Classe':^14} | {'Estado':^6}\n"
+            separador = "-" * 75
+            tabela = coluna + separador + "\n"
+            if mapa:
+                for chave in mapa.keys():
+                    linha = f"{chave:<7} | {mapa[chave]['_Nomenclatura']:<22} | {mapa[chave]['_Modulo']:<14} | {mapa[chave]['_classes']:<14} | {mapa[chave]['_estado']:^6}\n"
+                    if mapa[chave]['_estado'] == '1':
+                        on.append(mapa[chave]['_estado'])
+                    elif mapa[chave]['_estado'] == '0':
+                        off.append(mapa[chave]['_estado'])
+                    tabela += linha
+            else:
+                linha = f"{'MOD_000':<7} | {'BASE VAZIA':<22} | {'SEM REGISTRO':<14} | {'-':<14} | {'-':^6}\n"
+                tabela += linha 
 
-        total = len(mapa)
-        self.logMOD = ctk.CTkTextbox(
-            telas,
-            fg_color= self.branco,
-            font= (self.familia, 12),
+            total = len(mapa)
+            self.logMOD = ctk.CTkTextbox(
+                telas,
+                fg_color= self.branco,
+                font= (self.familia, 12),
 
-            border_color= self.preto,
-            text_color= self.preto,
-            border_width= 2,
-            border_spacing= 1,
-            state= 'normal'
-        )
-        self.labelVlr = ctk.CTkLabel(
-            telas,
-            text= f"Registrados: {total} | Ativos: {len(on)} | Desativados: {len(off)}",
-            fg_color= self.branco,
-            border_width= 2,
-            border_color= self.preto,
-            font=(self.familia, 16),
-            text_color= self.preto,
-            anchor= "center",
-        )
-        self.logMOD.insert("0.0", tabela)
-        self.logMOD.configure(state='disabled')
-        self.logMOD.place_configure(relx= 0.0, rely= 0.0, relheight= 0.89, relwidth= 1)
-        self.labelVlr.place_configure(relx= 0.0, rely= 0.88, relheight= 0.12, relwidth= 1)
-
+                border_color= self.preto,
+                text_color= self.preto,
+                border_width= 2,
+                border_spacing= 1,
+                state= 'normal'
+            )
+            self.labelVlr = ctk.CTkLabel(
+                telas,
+                text= f"Registrados: {total} | Ativos: {len(on)} | Desativados: {len(off)}",
+                fg_color= self.branco,
+                border_width= 2,
+                border_color= self.preto,
+                font=(self.familia, 16),
+                text_color= self.preto,
+                anchor= "center",
+            )
+            self.logMOD.insert("0.0", tabela)
+            self.logMOD.configure(state='disabled')
+            self.logMOD.place_configure(relx= 0.0, rely= 0.0, relheight= 0.89, relwidth= 1)
+            self.labelVlr.place_configure(relx= 0.0, rely= 0.88, relheight= 0.12, relwidth= 1)
+        except Exception as e:
+            validador.registrar_log(e, "Consultas")
         pass
     def Editar(self, telas: ctk.CTkLabel):
-        self.etapa = "editar"
-        mapa = self.ancoraDB.BuscarVlr()
-        self._destroyer(telas)
-        self.__Contructor(telas, mapa)
-
+        try:
+            self.etapa = "editar"
+            mapa = self.ancoraDB.BuscarVlr()
+            self._destroyer(telas)
+            self.__Contructor(telas, mapa)
+        except Exception as e:
+            validador.registrar_log(e, "Editar")
         pass
     def Cadastrar(self, telas: ctk.CTkLabel):
-        self.etapa = "cadastrar"
-        mapa = self.ancoraDB.BuscarVlr()
-        lista = []
+        try:
+            self.etapa = "cadastrar"
+            mapa = self.ancoraDB.BuscarVlr()
+            lista = []
 
-        self._destroyer(telas)
-        self.__Contructor(telas, mapa)
-        for chave in mapa.keys():
-            valor = chave.split("_")
-            vlInt = int(valor[1])
-            lista.append(vlInt)
-        if lista:
-            maior = max(lista)
-        else:
-            maior = 0
-        self.entryID.insert(0, f"MOD_{maior+1:03d}")
-        self.entryID.configure(state="disabled")
-        self.btPesquisar.configure(state='disabled')
-
+            self._destroyer(telas)
+            self.__Contructor(telas, mapa)
+            for chave in mapa.keys():
+                valor = chave.split("_")
+                vlInt = int(valor[1])
+                lista.append(vlInt)
+            if lista:
+                maior = max(lista)
+            else:
+                maior = 0
+            self.entryID.insert(0, f"MOD_{maior+1:03d}")
+            self.entryID.configure(state="disabled")
+            self.btPesquisar.configure(state='disabled')
+        except Exception as e:
+            validador.registrar_log(e, "Cadastrar")
 
         pass
     def Apagar(self, telas: ctk.CTkLabel):
-        self.etapa = "Apagar"
-        mapa = self.ancoraDB.BuscarVlr()
+        try:
+            self.etapa = "Apagar"
+            mapa = self.ancoraDB.BuscarVlr()
 
-        self._destroyer(telas)
-        self.__Contructor(telas, mapa)
-        self.entryDesc.configure(state="disabled")
-        self.entryModulo.configure(state="disabled")
-        self.entryClasse.configure(state="disabled")
-        self.boxEstado.configure(state="disabled")
-
+            self._destroyer(telas)
+            self.__Contructor(telas, mapa)
+            self.entryDesc.configure(state="disabled")
+            self.entryModulo.configure(state="disabled")
+            self.entryClasse.configure(state="disabled")
+            self.boxEstado.configure(state="disabled")
+        except Exception as e:
+            validador.registrar_log(e, "Apagar")

@@ -7,64 +7,79 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # A partir daqui, as importações funcionam normalmente
 from views.modgui import Modulos
+from lib.modErros import ModularErros
 
+validador = ModularErros(fonte= "MENU")
 class  auxiliares:
-    def _Liberar(self,tesk, listBT= list):
-        for button in listBT:
-            button.configure(state= tesk)
-        for widget in self.telaAlterar.winfo_children():
-            widget.destroy()
-
-        pass
+    def _LimparWidget(self,tesk, listBT= list):
+        try:
+            for button in listBT:
+                button.configure(state= tesk)
+            for widget in self.telaAlterar.winfo_children():
+                widget.destroy()
+        except Exception as e:
+            validador.registrar_log(e, "_LimparWidget")
     def _desmarcar(self, listbox= list, listBT= list):
-        self._Liberar(listBT= listBT, tesk= 'disabled')
+        try:
+            self._LimparWidget(listBT= listBT, tesk= 'disabled')
 
-        for widget in self.telaAlterar.winfo_children():
-            widget.destroy()
+            for widget in self.telaAlterar.winfo_children():
+                widget.destroy()
+            self.telaAlterar.configure(fg_color= self.branco)
 
-        for box in listbox:
-            box.deselect()
-
-        pass
+            for box in listbox:
+                box.deselect()
+        except Exception as e:
+            validador.registrar_log(e, "_desmarcar")
     def _destroyer(self, telas: ctk.CTkLabel):
-        for widget in telas.winfo_children():
-            widget.destroy()
-        pass
+        try:
+            for widget in telas.winfo_children():
+                widget.destroy()
+        except Exception as e:
+            validador.registrar_log(e, "_destroyer")
     def _limitar_tamanho(self, texto, limite):
         return len(texto) <= limite
     
     def _centerConsulta(self):
-        valor_atual = self.radioVar.get()
-        match valor_atual:
-            case "MOD":
-                self.modulo.Consultas(telas=self.telaAlterar)
-            case _:
-                print("Desconhecido")
-        pass
+        try:
+            valor_atual = self.radioVar.get()
+            match valor_atual:
+                case "MOD":
+                    self.modulo.Consultas(telas=self.telaAlterar)
+                case _:
+                    print("Desconhecido")
+        except Exception as e:
+            validador.registrar_log(e, "_centerConsulta")
     def _centerEditar(self):
-        valor_atual = self.radioVar.get()
-        match valor_atual:
-            case "MOD":
-                self.modulo.Editar(telas=self.telaAlterar)
-            case _:
-                print("Desconhecido")
-        pass
+        try:
+            valor_atual = self.radioVar.get()
+            match valor_atual:
+                case "MOD":
+                    self.modulo.Editar(telas=self.telaAlterar)
+                case _:
+                    print("Desconhecido")
+        except Exception as e:
+            validador.registrar_log(e, "_centerEditar")
     def _centerCadastrar(self):
-        valor_atual = self.radioVar.get()
-        match valor_atual:
-            case "MOD":
-                self.modulo.Cadastrar(telas=self.telaAlterar)
-            case _:
-                print("Desconhecido")
-        pass
+        try:
+            valor_atual = self.radioVar.get()
+            match valor_atual:
+                case "MOD":
+                    self.modulo.Cadastrar(telas=self.telaAlterar)
+                case _:
+                    print("Desconhecido")
+        except Exception as e:
+            validador.registrar_log(e, "_centerCadastrar")
     def _centerApagar(self):
-        valor_atual = self.radioVar.get()
-        match valor_atual:
-            case "MOD":
-                self.modulo.Apagar(telas=self.telaAlterar)
-            case _:
-                print("Desconhecido")
-        pass
+        try:
+            valor_atual = self.radioVar.get()
+            match valor_atual:
+                case "MOD":
+                    self.modulo.Apagar(telas=self.telaAlterar)
+                case _:
+                    print("Desconhecido")
+        except Exception as e:
+            validador.registrar_log(e, "_centerCadastrar")
 
 class Menu(auxiliares):
     def __init__(self):
@@ -177,7 +192,7 @@ class Menu(auxiliares):
             hover_color= self.vermelho,
             fg_color= self.vermelho,
             border_color= self.preto,
-            command= lambda: self._Liberar(listBT= self.buttonList, tesk= 'normal'),
+            command= lambda: self._LimparWidget(listBT= self.buttonList, tesk= 'normal'),
         )
         self.boxBots = ctk.CTkRadioButton(
             self.telasFlegs,
@@ -188,7 +203,7 @@ class Menu(auxiliares):
             hover_color= self.vermelho,
             fg_color= self.vermelho,
             border_color= self.preto,
-            command= lambda: self._Liberar(listBT= self.buttonList, tesk= 'normal'),
+            command= lambda: self._LimparWidget(listBT= self.buttonList, tesk= 'normal'),
         )
         self.boxTarefas = ctk.CTkRadioButton(
             self.telasFlegs,
@@ -199,7 +214,7 @@ class Menu(auxiliares):
             hover_color= self.vermelho,
             fg_color= self.vermelho,
             border_color= self.preto,
-            command= lambda: self._Liberar(listBT= self.buttonList, tesk= 'normal'),
+            command= lambda: self._LimparWidget(listBT= self.buttonList, tesk= 'normal'),
         )
         pass
     def __localizador(self):
