@@ -1,5 +1,6 @@
 import sqlite3
 from .settings import _DataBase
+from typing import Literal
 
 class ErroDB:
     def __init__(self):
@@ -60,16 +61,15 @@ class ErroDB:
             return valor
         pass
 
-class BotsDB:
-    def __init__(self):
-        self.moduloDB = _DataBase.botdb
-        self.NomeTabela = "botsTB"
-
-        pass
-class ModuloDB:
-    def __init__(self):
-        self.moduloDB = _DataBase.modDb
-        self.NomeTabela = "modulosTB"
+class CRUD_DB:
+    def __init__(self, base= Literal["modulos", "bots"]):
+        match base:
+            case "modulos":
+                self.DataBase = _DataBase.modDb
+                self.NomeTabela = "modulosTB"
+            case "bots":
+                self.DataBase = _DataBase.botdb
+                self.NomeTabela = "botsTB"
 
         pass
     def __CriarTabela(self):
@@ -84,7 +84,7 @@ class ModuloDB:
         """
         return query
     def __conectar(self, sql: str, parametros: tuple = (), retornar_linha: bool= False):
-        with sqlite3.connect(self.moduloDB) as conn:
+        with sqlite3.connect(self.DataBase) as conn:
             cursor = conn.cursor()
 
             cursor.execute(self.__CriarTabela())
@@ -114,9 +114,8 @@ class ModuloDB:
     def DeletarVlr(self, valor: tuple):
         query = f"DELETE FROM {self.NomeTabela} WHERE CHAVES = ?"
         self.__conectar(sql= query, parametros= valor)
-        sucesso = self.ancoraDB.DeletarVlr(('MOD_002',))
+        sucesso = self.__conectar(sql= query, parametros= valor)
         return sucesso
-        pass
     def EditarVlr(self, valor: tuple):
         query = f"""
             UPDATE {self.NomeTabela} 

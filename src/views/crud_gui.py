@@ -1,9 +1,8 @@
 import customtkinter as ctk
-import sqlite3
 from tkinter import messagebox as msg
 from typing import Literal
 
-from lib.admDB import ModuloDB
+from lib.admDB import CRUD_DB
 from lib.modErros import ModularErros
 
 validador = ModularErros(fonte= "GUI - Modulos")
@@ -53,8 +52,8 @@ class  auxiliares:
         self.boxEstado.configure(state="normal")
         pass
     pass
-class Modulos(auxiliares):
-    def __init__(self):
+class CRUD_(auxiliares):
+    def __init__(self, base= Literal["modulos", "bots"]):
         self.etapa = None
         self.marrom = "#8a541f"
         self.marromClaro = "#d8a859"
@@ -63,7 +62,7 @@ class Modulos(auxiliares):
         self.vermelho = "#8e3312"
         self.familia = "Consolas"
 
-        self.ancoraDB = ModuloDB()
+        self.ancoraDB = CRUD_DB(base= base)
         
         self.meu_estado_var = ctk.StringVar(value= "0")
         pass

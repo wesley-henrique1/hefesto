@@ -6,7 +6,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # A partir daqui, as importações funcionam normalmente
-from views.modgui import Modulos
+from views.crud_gui import CRUD_
 from lib.modErros import ModularErros
 
 validador = ModularErros(fonte= "MENU")
@@ -17,6 +17,7 @@ class  auxiliares:
                 button.configure(state= tesk)
             for widget in self.telaAlterar.winfo_children():
                 widget.destroy()
+            self.telaAlterar.configure(fg_color= self.branco)
         except Exception as e:
             validador.registrar_log(e, "_LimparWidget")
     def _desmarcar(self, listbox= list, listBT= list):
@@ -46,6 +47,8 @@ class  auxiliares:
             match valor_atual:
                 case "MOD":
                     self.modulo.Consultas(telas=self.telaAlterar)
+                case "BOT":
+                    self.bots.Consultas(telas=self.telaAlterar)
                 case _:
                     print("Desconhecido")
         except Exception as e:
@@ -56,6 +59,8 @@ class  auxiliares:
             match valor_atual:
                 case "MOD":
                     self.modulo.Editar(telas=self.telaAlterar)
+                case "BOT":
+                    self.bots.Editar(telas=self.telaAlterar)
                 case _:
                     print("Desconhecido")
         except Exception as e:
@@ -66,6 +71,8 @@ class  auxiliares:
             match valor_atual:
                 case "MOD":
                     self.modulo.Cadastrar(telas=self.telaAlterar)
+                case "BOT":
+                    self.bots.Cadastrar(telas=self.telaAlterar)
                 case _:
                     print("Desconhecido")
         except Exception as e:
@@ -76,6 +83,8 @@ class  auxiliares:
             match valor_atual:
                 case "MOD":
                     self.modulo.Apagar(telas=self.telaAlterar)
+                case "BOT":
+                    self.bots.Apagar(telas=self.telaAlterar)
                 case _:
                     print("Desconhecido")
         except Exception as e:
@@ -97,7 +106,8 @@ class Menu(auxiliares):
         # root.iconbitmap(_Icone.perfil)
         root.resizable(False, False)
         self.radioVar = ctk.StringVar(value= "COMANDOS")
-        self.modulo = Modulos()
+        self.modulo = CRUD_(base= "modulos")
+        self.bots = CRUD_(base= "bots")
 
         self.__componentes(root)
         self.__clicaveis()
@@ -216,6 +226,17 @@ class Menu(auxiliares):
             border_color= self.preto,
             command= lambda: self._LimparWidget(listBT= self.buttonList, tesk= 'normal'),
         )
+        self.boxRotasdf = ctk.CTkRadioButton(
+            self.telasFlegs,
+            text= "Rotas dados",
+            value= "rotas",
+            variable= self.radioVar,
+            text_color= self.preto,
+            hover_color= self.vermelho,
+            fg_color= self.vermelho,
+            border_color= self.preto,
+            command= lambda: self._LimparWidget(listBT= self.buttonList, tesk= 'normal'),
+        )
         pass
     def __localizador(self):
         # Localização dos componentes principais
@@ -232,7 +253,8 @@ class Menu(auxiliares):
         self.boxModulo.place_configure(relx= 0.02, rely= 0.50, relwidth= 0.22, relheight= 0.20)
         self.boxBots.place_configure(relx= 0.27, rely= 0.50, relwidth= 0.22, relheight= 0.20)
         self.boxTarefas.place_configure(relx= 0.52, rely= 0.50, relwidth= 0.22, relheight= 0.20)
-        self.btDesmarcar.place_configure(relx= 0.77, rely= 0.50, relwidth= 0.22, relheight= 0.20)
+        self.boxRotasdf.place_configure(relx= 0.77, rely= 0.50, relwidth= 0.22, relheight= 0.20)
+        self.btDesmarcar.place_configure(relx= 0.01, rely= 0.75, relwidth= 0.22, relheight= 0.20)
         pass
 
 if __name__ == "__main__":
