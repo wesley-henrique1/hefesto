@@ -4,6 +4,7 @@ from src.lib.admDB import CRUD_DB
 import webbrowser
 import customtkinter as ctk
 from PIL import Image
+import math
 
 class __auxiliares:
     def FUNC_Iniciar(self):
@@ -16,7 +17,8 @@ class __auxiliares:
         print("demandas 3... 2.. 1...")
     def FUNC_config(self):
         Menu()
-
+    def testeComando(self, fase):
+        print("\nClicado", fase)
     def AbrirGIT(self, event=None):
         webbrowser.open("https://github.com/wesley-henrique1")
 
@@ -38,12 +40,25 @@ class Main(__auxiliares):
 
         modulo = CRUD_DB(base= "modulos")
         dicNome = modulo.BuscarVlr()
-        self.ListaBox = []
+        self.MapaBox = []
+
+        for chave in dicNome.keys():
+            if  dicNome[chave]['_estado'] == '0':
+                    continue
+            var_estado = ctk.StringVar(value="0")
+            self.MapaBox.append(
+                {chave:{
+                    "checkbox": int, 
+                    "__estado__": var_estado, 
+                    '_Nomenclatura': dicNome[chave]['_Nomenclatura']
+                    }
+                }
+            )
 
         self.__Componentes(root)
         self.__TelasImgs()
         self.__clicaveis()
-        self.__flegsMOD(dicNome)
+        self.__flegsMOD()
         self.__localizador()
         root.mainloop()
         pass
@@ -167,23 +182,26 @@ class Main(__auxiliares):
         )
         pass
 
-    def __flegsMOD(self, mapa: dict):
-        for chave in mapa.keys():
-            var_estado = ctk.StringVar(value="0")
-            boxNome = ctk.CTkCheckBox(
-                self.pipelines,
-                text=mapa[chave]['_Nomenclatura'],
-                variable=var_estado,
-                onvalue= "1",
-                offvalue= "0",
-                font=(self.familia, 16, 'bold'),
-                text_color=self.preto,
-                fg_color=self.vermelho,
-                hover_color=self.vermelho,
-                border_color=self.preto,
-            )
-            self.ListaBox.append({"checkbox": boxNome, "var": var_estado, "chave": chave})
-
+    def __flegsMOD(self):
+        for valor in self.MapaBox:
+            for registro in valor.keys():
+                boxNome = ctk.CTkCheckBox(
+                    self.pipelines,
+                    text=valor[registro]['_Nomenclatura'],
+                    variable=valor[registro]['__estado__'],
+                    onvalue= "1",
+                    offvalue= "0",
+                    font=(self.familia, 16, 'bold'),
+                    text_color=self.preto,
+                    fg_color=self.vermelho,
+                    hover_color=self.vermelho,
+                    border_color=self.preto,
+                    command= lambda: self.testeComando(
+                        
+                    )
+                )
+                valor[registro]['checkbox'] = boxNome
+            print(valor)
         pass
     def __localizador(self):
         self.pipelines.place(rely=0.02, relx=0.01, relwidth=0.77, relheight=0.40)
@@ -194,15 +212,23 @@ class Main(__auxiliares):
         # Painel dos Pipelanes
         startX = 0.02
         startY = 0.02
+        total = len(self.MapaBox)
 
-        for i, valor in enumerate(self.ListaBox, 1):
-            valor['checkbox'].place(rely=startY, relx=startX, relwidth=0.46, relheight=0.12)
-            
-            startY += 0.14
-            
-            if i % 6 == 0:
-                startX += 0.50
-                startY = 0.02
+        limite_primeira_coluna = math.ceil(total / 2)
+
+        print(f"Total: {total}, Itens na 1ª coluna: {limite_primeira_coluna}")
+
+        for index, dicionario in enumerate(self.MapaBox):
+            for registro in dicionario.keys():
+                
+                dicionario[registro]['checkbox'].place(
+                    rely=startY, relx=startX, relwidth=0.46, relheight=0.12
+                )
+                
+                startY += 0.14
+                if (index + 1) == limite_primeira_coluna:
+                    startX = 0.52  # Posição X da segunda coluna
+                    startY = 0.02  # Reseta o topo para a segunda coluna
 
         # Painel dos Botões (posicionados dentro do self.painel)
         self.btIniciar.place(rely=0.02, relx=0.04, relwidth=0.92, relheight=0.08)
