@@ -18,7 +18,12 @@ class __auxiliares:
     def FUNC_config(self):
         Menu()
     def testeComando(self, fase):
-        print("\nClicado", fase)
+        for item in self.MapaBox:
+            for chave, dados in item.items():
+                estado_atual = dados["__estado__"].get()           
+                if estado_atual == "1":
+                    print(f"O relatório '{dados['_Nomenclatura']}' ({chave}) está MARCADO.")
+
     def AbrirGIT(self, event=None):
         webbrowser.open("https://github.com/wesley-henrique1")
 
@@ -196,12 +201,9 @@ class Main(__auxiliares):
                     fg_color=self.vermelho,
                     hover_color=self.vermelho,
                     border_color=self.preto,
-                    command= lambda: self.testeComando(
-                        
-                    )
+                    command= lambda: self.testeComando(self.MapaBox)
                 )
                 valor[registro]['checkbox'] = boxNome
-            print(valor)
         pass
     def __localizador(self):
         self.pipelines.place(rely=0.02, relx=0.01, relwidth=0.77, relheight=0.40)
