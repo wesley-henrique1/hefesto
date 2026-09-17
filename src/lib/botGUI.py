@@ -11,13 +11,12 @@ from lib.admDB import CRUD_DB
 import math
 import os
 import pandas as pd
+
 class __auxiliares:
     def _LimparWidget(self,tesk, listBT= list):
         try:
             for button in listBT:
                 button.configure(state= tesk)
-            for widget in self.Retorno.winfo_children():
-                widget.destroy()
             self.Retorno.configure(fg_color= self.branco)
         except Exception as e:
             print(e)
@@ -25,9 +24,6 @@ class __auxiliares:
     def _desmarcar(self, listBT= list):
         try:
             self._LimparWidget(listBT= listBT, tesk= 'disabled')
-
-            for widget in self.Retorno.winfo_children():
-                widget.destroy()
             self.Retorno.configure(fg_color= self.branco)
 
             for dicionario in self.MapaBox:
@@ -98,13 +94,27 @@ class BotsUI(__auxiliares):
         self.__Componentes(root)
         self.__flegsUnicos()
         self.__clicaveis()
-        self.buttonList = [self.btIniciar]
+        self.buttonList = [self.btIniciar, self.btEntrada, self.btPausar, self.btParar]
 
         self.__localizador()
 
         root.mainloop()
         pass
 
+    def IniciosBot(self):
+
+        """
+        1 - entrada (aquivos)
+        2 - inicio (bt iniciar)
+        3 - contador (mostrar etapas e valores)
+        4 - pausar (bt para pausar)
+        5 - parar (bt para parar)
+
+        MUDAR A ARQUITETURA DOS BOT ONDE VAI CHAVAR UMA FUNÇÃO ESPECIFICA E DEPOIS OUTRA IIGUAL O PIP E  CARREGAMENTO
+        criar uma comunicação indireda utilizando json, quando o bot foi executado ele vai gerar um arquivo json, o mesmo vai ser puxado pela interface, assim o bot não precisa de conectar com a interface.exe ja que quando o diretorio se transofrmar em executavel.exe ele vai perder as depedencias dentro das pasta mod e bot ja que estão fora do pacote 
+        """
+
+        pass
     def __Componentes(self, tela):
         self.Painel = ctk.CTkFrame(
             tela,
@@ -118,6 +128,25 @@ class BotsUI(__auxiliares):
             border_width= 3,
             border_color= self.preto,
         )
+
+        self.contagem = ctk.CTkLabel(
+             self.Retorno ,
+             text= "Total de Valores a serem processados: 000",
+            font= (self.familia, 14, "bold"),
+            fg_color= self.branco,
+            border_width= 3,
+            border_color= self.preto,
+        )
+        self.contador = ctk.CTkLabel(
+             self.Retorno ,
+             text= "Progresso: 000/000 |faltando: 000 |  00:00:00",
+            font= (self.familia, 14, "bold"),
+            fg_color= self.branco,
+            border_width= 3,
+            border_color= self.preto,
+        )
+
+        
         pass
     def __flegsUnicos(self):
         for valor in self.MapaBox:
@@ -136,7 +165,6 @@ class BotsUI(__auxiliares):
                     command= lambda: self._LimparWidget(listBT= self.buttonList, tesk= 'normal'),
                 )
                 valor[registro]['checkbox'] = boxModulo
-
     def __clicaveis(self):
         self.btAbrir = ctk.CTkButton(
             self.Painel,
@@ -169,14 +197,55 @@ class BotsUI(__auxiliares):
             border_width= 3,
             command= lambda: self._desmarcar(listBT= self.buttonList)
         )
+        self.btEntrada = ctk.CTkButton(
+            self.Retorno,
+            text= "Iniciar",
+            state= 'disabled',
+            font= (self.familia, 14, "bold"),
+            text_color= self.preto,
+            text_color_disabled= self.vermelho,
+            fg_color= self.branco,
+            border_width= 3,
+            # command= self.FUNC_demandas
+        )
+        self.btPausar = ctk.CTkButton(
+            self.Retorno,
+            text= "Pausar",
+            state= 'disabled',
+            font= (self.familia, 14, "bold"),
+            text_color= self.preto,
+            text_color_disabled= self.vermelho,
+            fg_color= self.branco,
+            border_width= 3,
+            # command= self.FUNC_demandas
+        )
+        self.btParar = ctk.CTkButton(
+            self.Retorno,
+            text= "Parar",
+            state= 'disabled',
+            font= (self.familia, 14, "bold"),
+            text_color= self.preto,
+            text_color_disabled= self.vermelho,
+            fg_color= self.branco,
+            border_width= 3,
+            # command= self.FUNC_demandas
+        )
+
         pass
     def __localizador(self):
         self.Painel.place_configure(relx= 0.02, rely= 0.02, relheight= 0.40, relwidth= 0.96)
         self.Retorno.place_configure(relx= 0.02, rely= 0.44, relheight= 0.55, relwidth= 0.96)
 
+        self.contagem.place_configure(relx= 0.02, rely= 0.04, relheight= 0.20, relwidth= 0.96)
+        self.contador.place_configure(relx= 0.02, rely= 0.26, relheight= 0.20, relwidth= 0.96)
+
         self.btAbrir.place_configure(relx= 0.02, rely= 0.70, relheight= 0.20, relwidth= 0.40)
         self.btIniciar.place_configure(relx= 0.44, rely= 0.70, relheight= 0.20, relwidth= 0.22)
         self.desmarcar.place_configure(relx= 0.68, rely= 0.70, relheight= 0.20, relwidth= 0.22)
+
+        self.btEntrada.place_configure(relx= 0.02, rely= 0.70, relheight= 0.20, relwidth= 0.22)
+        self.btPausar.place_configure(relx= 0.28, rely= 0.70, relheight= 0.20, relwidth= 0.22)
+        self.btParar.place_configure(relx= 0.54, rely= 0.70, relheight= 0.20, relwidth= 0.22)
 
         startX = 0.02
         startY = 0.06
