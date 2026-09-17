@@ -1,9 +1,10 @@
 from src.lib.settings import _Imagens, _Icone
-from src.views.menu import Menu
 from src.lib.admDB import CRUD_DB
+from src.views.menu import Menu
+from PIL import Image
+
 import webbrowser
 import customtkinter as ctk
-from PIL import Image
 import math
 
 class __auxiliares:
