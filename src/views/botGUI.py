@@ -15,7 +15,7 @@ import pandas as pd
 
 class __auxiliares:
     def _CriarAncora(self, radiovars: ctk.StringVar):
-        ExecuteBOT = ExecuteBot()
+        # ExecuteBOT = ExecuteBot()
         """ Criação da ancora rotas"""
         rota = path_DB()
         dictRotas = rota.BuscarVlr()
@@ -36,7 +36,7 @@ class __auxiliares:
                     }
                 }
             )
-        return dictRotas, MapaBox, ExecuteBOT
+        return dictRotas, MapaBox
 
     def _LimparWidget(self,tesk, listBT= list):
         try:
@@ -88,7 +88,7 @@ class __auxiliares:
             for nome_aba, colunas in etapas.items():
                 pd.DataFrame(columns=colunas).to_excel(writer, sheet_name=nome_aba, index=False)
         os.startfile(Entrada)  
-
+        
 class BotsUI(__auxiliares):
     def __init__(self):
         self.marrom = "#8a541f"
@@ -106,7 +106,7 @@ class BotsUI(__auxiliares):
         root.resizable(False, False)
 
         radioVar = ctk.StringVar(value= "COMANDOS") 
-        self.dictRotas, self.MapaBox, ExecuteBOT = self._CriarAncora(radioVar)
+        self.dictRotas, self.MapaBox = self._CriarAncora(radioVar)
 
         self.__Componentes(root)
         self.__clicaveis()
@@ -117,7 +117,7 @@ class BotsUI(__auxiliares):
         pass
 
     def IniciosBot(self):
-
+        
         """
         1 - entrada (aquivos)
         2 - inicio (bt iniciar)
@@ -265,13 +265,13 @@ class BotsUI(__auxiliares):
         startY = 0.06
         total = len(self.MapaBox)
 
-        limite_coluna = math.ceil(total / 3)
+        limite_coluna = math.ceil(total / 2)
 
         for index, dicionario in enumerate(self.MapaBox):
             for registro in dicionario.keys():
                 
                 dicionario[registro]['checkbox'].place(
-                    rely=startY, relx=startX, relwidth=0.30, relheight=0.20
+                    rely=startY, relx=startX, relwidth=0.40, relheight=0.20
                 )
                 startY += 0.22
                 if (index + 1) == limite_coluna:

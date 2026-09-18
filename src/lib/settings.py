@@ -4,8 +4,10 @@ class _Caminho:
     __diretorioAtual = Path(__file__).parent
     PastaBot = __diretorioAtual.parent.parent / "bot"
     PastaMod = __diretorioAtual.parent.parent / "mod"
+
     assets = __diretorioAtual.parent / "assets"
     bancoDados = __diretorioAtual.parent / "db"
+
     # lib = _Caminho.diretorioAtual / "lib"
     # views = _Caminho.diretorioAtual / "views"
 
@@ -37,7 +39,11 @@ class _DataBase(_Caminho):
     modDb = dataBase / "modDB.db"
     taskDb = dataBase / "tarefadb.db"
     rotadb = dataBase / "rotasdb.db"
+    pass
 
+class _DataJson(_Caminho):
+    json = _Caminho.assets / "json"
+    rotas = json / "rotas.json"
 if __name__ == "__main__":
     ancora = _Caminho()
     _Icone = _Icone()

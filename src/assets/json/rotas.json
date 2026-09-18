@@ -1,0 +1,17 @@
+{
+    "ARQ_001": {
+        "VARIAVEL": "_OutPut_",
+        "PATH": "C:\\Users\\wesley.oliveira\\Desktop\\saida_codigos",
+        "ESTADO": "0"
+    },
+    "ARQ_002": {
+        "VARIAVEL": "__database__",
+        "PATH": "Z:\\1 - CD Dia\\4 - Equipe PCL\\6.1 - Inteligência Logística\\6.6 - PCL Cadastro\\__database__",
+        "ESTADO": "0"
+    },
+    "ARQ_003": {
+        "VARIAVEL": "_endereco07",
+        "PATH": "C:\\Users\\wesley.oliveira\\WS_OLIVEIRA\\SCRIPTS\\database\\1707 - Relatório de produtos por endereços.txt",
+        "ESTADO": "1"
+    }
+}

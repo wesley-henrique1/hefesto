@@ -290,7 +290,7 @@ class CRUD_(auxiliares):
                         if contrato == "cadastrar":
                             self.ancoraRota.InserirVle((chave, var, str(path), estado,)) 
                         elif contrato == "editar":
-                            self.ancoraRota.EditarVlr((var, path, estado, chave,))
+                            self.ancoraRota.EditarVlr((var, str(path), estado, chave,))
 
                         msg.showinfo("FEITO", f"Registro '{chave}' cadastrado com sucesso!")
                         print(f"Registro '{chave}' cadastrado com sucesso!")

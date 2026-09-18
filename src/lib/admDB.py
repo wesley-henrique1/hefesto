@@ -1,5 +1,7 @@
 import sqlite3
-from settings import _DataBase
+import json
+from .settings import _DataBase, _DataJson
+
 from typing import Literal
 
 class ErroDB:
@@ -65,6 +67,7 @@ class path_DB:
     def __init__(self):
         self.DataBase = _DataBase.rotadb
         self.NomeTabela = "rotaTB"
+        self.botpath = _DataJson.rotas
         pass
 
     def __CriarTabela(self):
@@ -76,8 +79,8 @@ class path_DB:
             ESTADO VARCHAR(1) NOT NULL
         );
         """
-        # ARQ_001 - _8596 - C:ALGUMLUFAR - TRUE
         return query
+
     def __conectar(self, sql: str, parametros: tuple = (), retornar_linha: bool= False):
         with sqlite3.connect(self.DataBase) as conn:
             cursor = conn.cursor()
@@ -103,6 +106,8 @@ class path_DB:
                 "PATH": linha[2],
                 "ESTADO": linha[3],
             }
+        with open(str(self.botpath), "w", encoding="utf-8") as valinho:
+            json.dump(dicionario, valinho, ensure_ascii=False, indent=4)
         return dicionario
     def DeletarVlr(self, valor: tuple):
         query = f"DELETE FROM {self.NomeTabela} WHERE CHAVES = ?"
