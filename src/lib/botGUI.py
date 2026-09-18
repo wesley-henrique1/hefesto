@@ -7,12 +7,37 @@ if str(src_path) not in sys.path:
     sys.path.append(str(src_path))
 
 import customtkinter as ctk
-from lib.admDB import CRUD_DB
+from lib.admDB import CRUD_DB, path_DB
+from lib.executeBot import ExecuteBot
 import math
 import os
 import pandas as pd
 
 class __auxiliares:
+    def _CriarAncora(self, radiovars: ctk.StringVar):
+        ExecuteBOT = ExecuteBot()
+        """ Criação da ancora rotas"""
+        rota = path_DB()
+        dictRotas = rota.BuscarVlr()
+
+        """ Criação da ancora bots"""
+        modulo = CRUD_DB(base= "bots")
+        dicNome = modulo.BuscarVlr()
+        MapaBox = []
+
+        for chave in dicNome.keys():
+            if  dicNome[chave]['_estado'] == '0':
+                    continue
+            MapaBox.append(
+                {chave:{
+                    "checkbox": int, 
+                    "__estado__": radiovars, 
+                    '_Nomenclatura': dicNome[chave]['_Nomenclatura']
+                    }
+                }
+            )
+        return dictRotas, MapaBox, ExecuteBOT
+
     def _LimparWidget(self,tesk, listBT= list):
         try:
             for button in listBT:
@@ -31,31 +56,38 @@ class __auxiliares:
                     dicionario[registro]['checkbox'].deselect()
         except Exception as e:
             print(e)
-            # validador.registrar_log(e, "_desmarcar")
-    
-    def CapturarFile(self):
-        nomeFile = 'ProvisorioFile.xlsx'
-        pasta_script = os.path.dirname(os.path.abspath(__file__))
+            # validador.registrar_log(e, "_desmarcar")  
+    def _AbrirFile(self, dictRota: dict):
+        for chave, dados in dictRota.items():
+            if dados.get('VARIAVEL') == "_OutPut_":
+                caminho = Path(dados.get('PATH', ''))
+                print("aquii,", dados.get('VARIAVEL'))
+                break
+        if not caminho:
+            print("Erro: Caminho de output não foi configurado.")
+            return
 
-        nomeBOT= ""
-        return os.path.join(pasta_script, nomeFile)
-    def AbrirFile(self):
-        caminho = self.CapturarFile()
-        if os.path.exists(caminho):
-            os.startfile(caminho)
-        else:
-            etapas = {
-                'transferencia': ["CODPROD"],
-                "Retirada": ['CODPROD', 'DTULTENT', 'QTESTGER', 'OBSFL'],
-                'transf3707': ["CODPROD", "DESTINO"],
-                'Etapa_3': ["CODPROD", "PL_LASTRO", "PL", "CAP", "QTEnd", "V_CAP"],
-                'adiconarPK': ["CODPROD", "DESTINO", 'CAPACIDADE', 'PONTO_REP']
-            }
+        caminho.mkdir(parents=True, exist_ok=True)
+        
+        Saida = caminho / "SaidaBot.xlsx"
+        Entrada = caminho / "EntradaBot.xlsx"
 
-            with pd.ExcelWriter(caminho, engine='openpyxl') as writer:
-                for nome_aba, colunas in etapas.items():
-                    pd.DataFrame(columns=colunas).to_excel(writer, sheet_name=nome_aba, index=False)
-            os.startfile(caminho)  
+        if os.path.exists(Entrada):
+            os.remove(Entrada)
+            print(f"Arquivo {Entrada.name} apagado com sucesso.")
+
+        etapas = {
+            'transferencia': ["CODPROD"],
+            "Retirada": ['CODPROD', 'DTULTENT', 'QTESTGER', 'OBSFL'],
+            'transf3707': ["CODPROD", "DESTINO"],
+            'Etapa_3': ["CODPROD", "PL_LASTRO", "PL", "CAP", "QTEnd", "V_CAP"],
+            'adiconarPK': ["CODPROD", "DESTINO", 'CAPACIDADE', 'PONTO_REP']
+        }
+
+        with pd.ExcelWriter(Entrada, engine='openpyxl') as writer:
+            for nome_aba, colunas in etapas.items():
+                pd.DataFrame(columns=colunas).to_excel(writer, sheet_name=nome_aba, index=False)
+        os.startfile(Entrada)  
 
 class BotsUI(__auxiliares):
     def __init__(self):
@@ -66,7 +98,6 @@ class BotsUI(__auxiliares):
         self.vermelho = "#8e3312"
         self.familia = "Consolas"
 
-
         root = ctk.CTk()
         root.title("AUTOMAÇÃO")
         root.geometry("440x300")
@@ -74,30 +105,14 @@ class BotsUI(__auxiliares):
         # root.iconbitmap(_Icone.perfil)
         root.resizable(False, False)
 
-        modulo = CRUD_DB(base= "bots")
-        dicNome = modulo.BuscarVlr()
-        self.MapaBox = []
-
         radioVar = ctk.StringVar(value= "COMANDOS") 
-        for chave in dicNome.keys():
-            if  dicNome[chave]['_estado'] == '0':
-                    continue
-            self.MapaBox.append(
-                {chave:{
-                    "checkbox": int, 
-                    "__estado__": radioVar, 
-                    '_Nomenclatura': dicNome[chave]['_Nomenclatura']
-                    }
-                }
-            )
+        self.dictRotas, self.MapaBox, ExecuteBOT = self._CriarAncora(radioVar)
 
         self.__Componentes(root)
-        self.__flegsUnicos()
         self.__clicaveis()
         self.buttonList = [self.btIniciar, self.btEntrada, self.btPausar, self.btParar]
 
         self.__localizador()
-
         root.mainloop()
         pass
 
@@ -146,9 +161,6 @@ class BotsUI(__auxiliares):
             border_color= self.preto,
         )
 
-        
-        pass
-    def __flegsUnicos(self):
         for valor in self.MapaBox:
             for registro in valor.keys():
                 boxModulo = ctk.CTkRadioButton(
@@ -165,6 +177,8 @@ class BotsUI(__auxiliares):
                     command= lambda: self._LimparWidget(listBT= self.buttonList, tesk= 'normal'),
                 )
                 valor[registro]['checkbox'] = boxModulo
+        
+        pass
     def __clicaveis(self):
         self.btAbrir = ctk.CTkButton(
             self.Painel,
@@ -174,7 +188,7 @@ class BotsUI(__auxiliares):
             text_color_disabled= self.vermelho,
             fg_color= self.branco,
             border_width= 3,
-            command= lambda: self.AbrirFile()
+            command= lambda: self._AbrirFile(self.dictRotas)
         )
         self.btIniciar = ctk.CTkButton(
             self.Painel,

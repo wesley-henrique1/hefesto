@@ -280,21 +280,20 @@ class CRUD_(auxiliares):
                         pass
                     elif self.base == 'rota':
                         self.entryClasse.configure(state="disabled")
-                        path = self.entryDesc.get().strip()
+                        caminho_limpo = self.entryDesc.get().strip().strip('"\'')
+                        path = Path(caminho_limpo)
                         var = self.entryModulo.get()
                         estado = self.boxEstado.get()
                         if not path or not var:
                             self._TextCampo()
                             return
                         if contrato == "cadastrar":
-                            self.ancoraRota.InserirVle((chave, var, path, estado,))
-                            msg.showinfo("FEITO", f"Registro '{chave}' cadastrado com sucesso!")
-                            print(f"Registro '{chave}' cadastrado com sucesso!")
-                        
+                            self.ancoraRota.InserirVle((chave, var, str(path), estado,)) 
                         elif contrato == "editar":
                             self.ancoraRota.EditarVlr((var, path, estado, chave,))
-                            msg.showinfo("FEITO", f"Registro '{chave}' atualizado com sucesso!")
-                            print(f"Registro '{chave}' atualizado com sucesso!")
+
+                        msg.showinfo("FEITO", f"Registro '{chave}' cadastrado com sucesso!")
+                        print(f"Registro '{chave}' cadastrado com sucesso!")
                         pass
                     else: 
                         nome = self.entryDesc.get().strip()

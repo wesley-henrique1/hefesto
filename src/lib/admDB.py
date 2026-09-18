@@ -1,5 +1,5 @@
 import sqlite3
-from .settings import _DataBase
+from settings import _DataBase
 from typing import Literal
 
 class ErroDB:

@@ -1,11 +1,11 @@
 from pathlib import Path
-import glob
-
 
 class _Caminho:
-    diretorioAtual = Path(__file__).parent
-    assets = diretorioAtual.parent / "assets"
-    bancoDados = diretorioAtual.parent / "db"
+    __diretorioAtual = Path(__file__).parent
+    PastaBot = __diretorioAtual.parent.parent / "bot"
+    PastaMod = __diretorioAtual.parent.parent / "mod"
+    assets = __diretorioAtual.parent / "assets"
+    bancoDados = __diretorioAtual.parent / "db"
     # lib = _Caminho.diretorioAtual / "lib"
     # views = _Caminho.diretorioAtual / "views"
 
