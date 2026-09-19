@@ -6,29 +6,35 @@ from pathlib import Path
 import importlib.util
 import os
 class ExecuteBot:
-    def __init__(self, chave: str, entrada: Path, saida: Path, rotas: dict):
-        self.ancora = CRUD_DB('bots')
-        self.entrada = str(entrada)
-        self.saida = str(saida)
-        self.rotas = rotas
-
-        self.dicTemp = self.ancora.BuscarVlr()
-        self.localBot = Path(_Caminho.PastaBot)
-
+    def __init__(self, chave: str, rotas: dict, entrada: Path, saida: Path,):
         self.dictJson = {
             'chave_modulo': chave,
             'textoUI': "INICIO",
             'fase': 0,
             'boleano': False
         }
+        self.rotas = rotas
+        self.entrada = str(entrada)
+        self.saida = str(saida)
+
+        ancora = CRUD_DB('bots')
+        self.dicTemp = ancora.BuscarVlr()
+
+        self.localBot = Path(_Caminho.PastaBot)
         self.local = self.localBot / 'status_bot.json'
-        self.__CriarJson()
+
+        self.__CriarJson(local= self.local, dicionario= self.dictJson)
         self.__Importar(chave)
         pass
 
-    def __CriarJson(self):
-        with open(self.local, "w", encoding= "utf-8") as f:
-            json.dump(self.dictJson, f, ensure_ascii=False, indent=4)
+    def __CriarJson(self, local: Path, dicionario: dict):
+        with open(local, mode= "w", encoding= "utf-8") as f:
+
+            """
+            validar depois uma forma de conversa escondida entre os modulos
+            """
+            json.dump(dicionario, f, ensure_ascii=False, indent=4)
+            json.dumps(dicionario, ensure_ascii= False)
     
     def __SalvarApartir(self, valor):
         valor['boleano'] = False

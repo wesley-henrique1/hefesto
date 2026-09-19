@@ -6,15 +6,17 @@ src_path = file_path.parents[1]
 if str(src_path) not in sys.path:
     sys.path.append(str(src_path))
 
-import customtkinter as ctk
 from lib.admDB import CRUD_DB, path_DB
 from lib.executeBot import ExecuteBot
+
+from tkinter import messagebox as msgbox
+import customtkinter as ctk
+import pandas as pd
 import math
 import os
-import pandas as pd
 
 class __auxiliares:
-    def _LimparWidget(self,tesk, listBT= list):
+    def _LimparWidget(self,tesk: str= 'disabled' | 'normal', listBT= list):
         try:
             for button in listBT:
                 button.configure(state= tesk)
@@ -34,59 +36,82 @@ class __auxiliares:
             print(e)
             # validador.registrar_log(e, "_desmarcar")  
     def _AbrirFile(self, dictRota: dict):
-        for chave, dados in dictRota.items():
-            if dados.get('VARIAVEL') == "_OutPut_":
-                caminho = Path(dados.get('PATH', ''))
-                print("aquii,", dados.get('VARIAVEL'))
-                break
-        if not caminho:
-            print("Erro: Caminho de output não foi configurado.")
-            return
-
         try: 
+            for chave, dados in dictRota.items():
+                if dados.get('VARIAVEL') == "_OutPut_":
+                    caminho = Path(dados.get('PATH', ''))
+                    break
+            if not caminho:
+                print("Erro: Caminho de output não foi configurado.")
+                return
+
             caminho.mkdir(parents=True, exist_ok=True)
             
             Saida = caminho / "SaidaBot.xlsx"
             Entrada = caminho / "EntradaBot.xlsx"
-
-            if os.path.exists(Entrada):
-                os.remove(Entrada)
-                print(f"Arquivo {Entrada.name} apagado com sucesso.")
-
-            etapas = {
-                'transferencia': ["CODPROD"],
-                "Retirada": ['CODPROD', 'DTULTENT', 'QTESTGER', 'OBSFL'],
-                'transf3707': ["CODPROD", "DESTINO"],
-                'Etapa_3': ["CODPROD", "PL_LASTRO", "PL", "CAP", "QTEnd", "V_CAP"],
-                'adiconarPK': ["CODPROD", "DESTINO", 'CAPACIDADE', 'PONTO_REP']
-            }
-            with pd.ExcelWriter(Entrada, engine='openpyxl') as writer:
-                for nome_aba, colunas in etapas.items():
-                    pd.DataFrame(columns=colunas).to_excel(writer, sheet_name=nome_aba, index=False)
-            os.startfile(Entrada)
         except Exception as e:
             Entrada = r'c:\Users\User\Desktop\saida_codigos\EntradaBot.xlsx'
             Saida = pd.DataFrame()
             print("Erro", e)
-        return Entrada, Saida 
 
-    def _CriarAncora(self, radiovars: ctk.StringVar):
-        """ Criação da ancora rotas"""
+        if os.path.exists(Entrada):
+            os.remove(Entrada)
+            print(f"Arquivo {Entrada.name} apagado com sucesso.")
+
+        etapas = {
+            'transferencia': ["CODPROD"],
+            "Retirada": ['CODPROD', 'DTULTENT', 'QTESTGER', 'OBSFL'],
+            'transf3707': ["CODPROD", "DESTINO"],
+            'Etapa_3': ["CODPROD", "PL_LASTRO", "PL", "CAP", "QTEnd", "V_CAP"],
+            'adiconarPK': ["CODPROD", "DESTINO", 'CAPACIDADE', 'PONTO_REP']
+        }
+        with pd.ExcelWriter(Entrada, engine='openpyxl') as writer:
+            for nome_aba, colunas in etapas.items():
+                pd.DataFrame(columns=colunas).to_excel(writer, sheet_name=nome_aba, index=False)
+        os.startfile(Entrada)
+
+        return Entrada, Saida 
+    def _IniciosBot(self,root: ctk.CTk | ctk.CTkToplevel, mapa: list, rotas: dict):
+        chave_selecionada = None
+        for dicionario in mapa:
+            for chave in dicionario.keys():
+                estado_atual = dicionario[chave]['__estado__'].get()
+                if estado_atual == chave:
+                    chave_selecionada = chave
+                    print(f"\n>> Modulo selecionado para iniciar: {chave_selecionada}\n")  
+                    break
+            if chave_selecionada:
+                break
+        if not chave_selecionada:
+            msgbox.showwarning("Aviso", "Nenhum modulo selecionado")
+            print("\n>> Nenhum modulo selecionado")
+            return
+        arquivoEntrada, arquivoSaida = self._AbrirFile(rotas)
+        root.after(10, lambda: ExecuteBot(
+            chave= chave_selecionada, 
+            rotas= rotas,
+            entrada= arquivoEntrada, 
+            saida= arquivoSaida
+        ))
+        pass
+    def _CriarAncora(self):
+        # Ancora do banco de dados das PATH(caminhos)
         rota = path_DB()
         dictRotas = rota.BuscarVlr()
 
-        """ Criação da ancora bots"""
+        # Ancora do bando de dados dos bot
+        radioVar = ctk.StringVar(value= "COMANDOS") 
         modulo = CRUD_DB(base= "bots")
         dicNome = modulo.BuscarVlr()
+
         MapaBox = []
-        
         for chave in dicNome.keys():
             if  dicNome[chave]['_estado'] == '0':
                     continue
             MapaBox.append(
                 {chave:{
                     "checkbox": int, 
-                    "__estado__": radiovars, 
+                    "__estado__": radioVar, 
                     '_Nomenclatura': dicNome[chave]['_Nomenclatura']
                     }
                 }
@@ -95,12 +120,13 @@ class __auxiliares:
 
 class BotsUI(__auxiliares):
     def __init__(self):
-        self.marrom = "#8a541f"
-        self.marromClaro = "#d8a859"
-        self.branco = "#ffffff"
-        self.preto = "#000000"
-        self.vermelho = "#8e3312"
         self.familia = "Consolas"
+
+        self.marromClaro = "#d8a859"
+        self.vermelho = "#8e3312"
+        self.branco = "#ffffff"
+        self.marrom = "#8a541f"
+        self.preto = "#000000"
 
         root = ctk.CTk()
         root.title("AUTOMAÇÃO")
@@ -109,25 +135,13 @@ class BotsUI(__auxiliares):
         # root.iconbitmap(_Icone.perfil)
         root.resizable(False, False)
 
-        radioVar = ctk.StringVar(value= "COMANDOS") 
-        self.dictRotas, self.MapaBox = self._CriarAncora(radioVar)
-
+        self.dictRotas, self.MapaBox = self._CriarAncora()
+        
         self.__Componentes(root)
         self.__clicaveis()
-        self.buttonList = [self.btIniciar, self.btParar]
-
         self.__localizador()
-        root.mainloop()
-        pass
 
-    def IniciosBot(self):
-        for valor in self.MapaBox:
-            for registro in valor.keys():
-                estado_atual = valor[registro]['__estado__'].get()
-                if estado_atual == registro:
-                    print(f"O registro selecionado é: {registro}")        
-        entry, output = self._AbrirFile(self.dictRotas)
-        ExecuteBot(chave=registro, entrada= entry,saida= output, rotas= self.dictRotas)
+        root.mainloop()
         pass
 
     def __Componentes(self, tela):
@@ -145,7 +159,7 @@ class BotsUI(__auxiliares):
         )
 
         self.contagem = ctk.CTkLabel(
-             self.Retorno ,
+             self.Retorno,
              text= "Total de Valores a serem processados: 000",
             font= (self.familia, 14, "bold"),
             text_color= self.preto,
@@ -164,23 +178,22 @@ class BotsUI(__auxiliares):
             border_color= self.preto,
         )
 
-        for valor in self.MapaBox:
-            for registro in valor.keys():
+        for dicionario in self.MapaBox:
+            for registro in dicionario.keys():
                 boxModulo = ctk.CTkRadioButton(
                     self.Painel,
-                    text= valor[registro]['_Nomenclatura'],
+                    text= dicionario[registro]['_Nomenclatura'],
                     value= registro,
-                    variable= valor[registro]['__estado__'],
+                    variable= dicionario[registro]['__estado__'],
 
                     text_color= self.preto,
                     hover_color= self.vermelho,
                     fg_color= self.vermelho,
                     border_color= self.preto,
 
-                    command= lambda: self._LimparWidget(listBT= self.buttonList, tesk= 'normal'),
+                    command= lambda: self._LimparWidget(listBT= [self.btIniciar, self.btParar], tesk= 'normal'),
                 )
-                valor[registro]['checkbox'] = boxModulo
-        
+                dicionario[registro]['checkbox'] = boxModulo
         pass
     def __clicaveis(self):
         self.btAbrir = ctk.CTkButton(
@@ -202,17 +215,7 @@ class BotsUI(__auxiliares):
             text_color_disabled= self.vermelho,
             fg_color= self.branco,
             border_width= 3,
-            command= self.IniciosBot
-        )
-        self.desmarcar = ctk.CTkButton(
-            self.Painel,
-            text= "Desmarcar",
-            font= (self.familia, 14, "bold"),
-            text_color= self.preto,
-            text_color_disabled= self.vermelho,
-            fg_color= self.branco,
-            border_width= 3,
-            command= lambda: self._desmarcar(listBT= self.buttonList)
+            command= lambda: self._IniciosBot(mapa= self.MapaBox, rotas= self.dictRotas)
         )
         self.btParar = ctk.CTkButton(
             self.Painel,
@@ -225,7 +228,16 @@ class BotsUI(__auxiliares):
             border_width= 3,
             # command= self.FUNC_demandas
         )
-
+        self.desmarcar = ctk.CTkButton(
+            self.Painel,
+            text= "Desmarcar",
+            font= (self.familia, 14, "bold"),
+            text_color= self.preto,
+            text_color_disabled= self.vermelho,
+            fg_color= self.branco,
+            border_width= 3,
+            command= lambda: self._desmarcar(listBT= [self.btIniciar, self.btParar])
+        )
         pass
     def __localizador(self):
         self.Painel.place_configure(relx= 0.02, rely= 0.02, relheight= 0.40, relwidth= 0.96)

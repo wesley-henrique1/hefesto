@@ -79,129 +79,142 @@ class TransferirPROD:
         var = auxiliar.PuxarRotas(rotas)
         self.listaPath = [entrada] + var
         self.listaSave = [saida]
+        self.totalItens = 0
+        self.processados = 0 
+        self.statusTexto = "Aguardando..."
+        self.ativo = True
+        print(self.listaPath)
 
-        
     def _pipeline(self):
-        try:
-            Endereco = [
-                'COD_END'
-                ,'PREDIO'
-                ,'NIVEL'
-                ,'APTO'
-                ,'STATUS'
-                ,'COD'
-                ,'DESC'
-                ,'DT_ENTRADA'
-                ,'DT_VALIDADE'
-                ,'EMB'
-                ,'LASTRO'
-                ,'CAMADA'
-                ,'CAP'
-                ,'TIPO_PK'
-                ,'PL_END'
-                ,'QTDE'
-                ,'ENTRADA'
-                ,'SAIDA'
-                ,'DISP'
-            ]
-
-            base_dados = pd.read_excel(self.listaPath[0], sheet_name= 'transf3707')
-            endereco = pd.read_csv(self.listaPath[1], header=None, names= Endereco, dtype=str)
-        except Exception as e:
-            print('Extract', e)
-            # self.validador.registrar_log(e, "Extract")
-            return False  
-        try:
-            end = endereco.query("TIPO_PK == 'AP'")[["COD_END", "COD", "TIPO_PK", "ENTRADA", "SAIDA", "DISP"]].copy()
-            end = auxiliar.ajuste_numeros(end, ["ENTRADA", "SAIDA", "DISP"])
-            end["MOVI"] = end["ENTRADA"] + end["SAIDA"]
-
-            livre = (end["DISP"] == 0) & (end["MOVI"] == 0)
-            pendencias = end["MOVI"] > 0
-            ocupado = end["DISP"] > 0
-            negativado = end["DISP"] < 0
-
-            end["CATEG_PROD"] = np.select(
-                [livre, pendencias, ocupado, negativado],
-                ["Livre", "Pendente", "Ocupado", "Negativado"],
-                default="Validar",
-            )
-            end["CODPROD"] = pd.to_numeric(end["COD"], errors="coerce").fillna(0).astype(int)
-            
-            corte = end[['COD_END']]
-            corte["CATEG_PK"] = pd.to_numeric(corte["COD_END"], errors="coerce").fillna(0).astype(int)
-            corte = corte.drop(columns= 'COD_END')
-
-            base_dados["CODPROD"] = pd.to_numeric(base_dados["CODPROD"], errors="coerce").fillna(0).astype(int)
-            base_dados["DESTINO"] = pd.to_numeric(base_dados["DESTINO"], errors="coerce").fillna(0).astype(int)
-
-            Produtos = base_dados.merge(end, on= 'CODPROD', how= 'left').drop(columns= 'COD')
-            Produtos = Produtos.merge(corte, left_on= "DESTINO", right_on= "CATEG_PK", how= "left")
-
-            Produtos['CATEG_PK'] = np.where(Produtos['CATEG_PK'].notna(), "Ocupado", "Livre")
-
-            dfProntos = Produtos.loc[Produtos['CATEG_PK'] == 'Livre']
-            dfPendentes = Produtos.loc[~Produtos['CATEG_PK'] == 'Livre']
-            print(end)
-        except Exception as e:
-            print('Transform', e)
-            # self.validador.registrar_log(e, "Transform")
-            return False
-        try:
-            dfProntos = dfProntos.drop_duplicates(subset= 'CODPROD', keep= "last")
-            with pd.ExcelWriter(self.listaSave[0], engine= 'openpyxl') as var:
-                dfProntos.to_excel(var, sheet_name= "Transferidos", index= False)
-                dfPendentes.to_excel(var, sheet_name= "Pendencias", index= False)
-                self.valvula_salva = True
-                print("etapa Load")
-            return dfProntos
-        except Exception as e:
-            print('Load', e)
-            self.validador.registrar_log(e, "Load")
-            return False
+        lista_de_tarefas = [1, 2, 3, 4, 5]
+        self.total_itens = len(lista_de_tarefas)
+        self.processados = 0
         
-    def _Simulador(self, df: pd.DataFrame):
-        try:
-            lista = []
-            total_itens = len(df)
-            inicio = time.perf_counter()
-            for fase, (_, registro) in enumerate(df.iterrows(), 1):
-                pag.sleep( self.velocidade)
+        for item in lista_de_tarefas:
+            if not self.ativo:
+                break
+            time.sleep(1) 
+            self.processados += 1
+            self.status_texto = f"Processando item {item}"
+        return self.processados
+       
+    # def _pipeline(self):
+    #     try:
+    #         Endereco = [
+    #             'COD_END'
+    #             ,'PREDIO'
+    #             ,'NIVEL'
+    #             ,'APTO'
+    #             ,'STATUS'
+    #             ,'COD'
+    #             ,'DESC'
+    #             ,'DT_ENTRADA'
+    #             ,'DT_VALIDADE'
+    #             ,'EMB'
+    #             ,'LASTRO'
+    #             ,'CAMADA'
+    #             ,'CAP'
+    #             ,'TIPO_PK'
+    #             ,'PL_END'
+    #             ,'QTDE'
+    #             ,'ENTRADA'
+    #             ,'SAIDA'
+    #             ,'DISP'
+    #         ]
 
-                # --- ETAPA 1: Inserir Código do Produto ---
-                cod_prod = registro['CODPROD']
-                if not auxiliar._copiar_e_validar(cod_prod):
-                    print(f"\nErro ao copiar produto: {cod_prod}")
-                    continue
-                pag.sleep( self.velocidade)
-                pag.hotkey("ctrl", "v")
-                pag.sleep( self.velocidade)
-                pag.press('enter')
+    #         base_dados = pd.read_excel(self.listaPath[0], sheet_name= 'transf3707')
+    #         endereco = pd.read_csv(self.listaPath[1], header=None, names= Endereco, dtype=str)
+    #     except Exception as e:
+    #         print('Extract', e)
+    #         # self.validador.registrar_log(e, "Extract")
+    #         return False  
+    #     try:
+    #         end = endereco.query("TIPO_PK == 'AP'")[["COD_END", "COD", "TIPO_PK", "ENTRADA", "SAIDA", "DISP"]].copy()
+    #         end = auxiliar.ajuste_numeros(end, ["ENTRADA", "SAIDA", "DISP"])
+    #         end["MOVI"] = end["ENTRADA"] + end["SAIDA"]
 
-                # --- ETAPA 2: Inserir Endereço ---
-                destino = registro['DESTINO']
-                if not auxiliar._copiar_e_validar(destino):
-                    print(f"Erro ao copiar endereço: {destino}")
-                    continue
-                pag.sleep( self.velocidade)
-                pag.hotkey("ctrl", "v")
-                pag.sleep( self.velocidade)
+    #         livre = (end["DISP"] == 0) & (end["MOVI"] == 0)
+    #         pendencias = end["MOVI"] > 0
+    #         ocupado = end["DISP"] > 0
+    #         negativado = end["DISP"] < 0
 
-                for _ in range(3):
-                    pag.press('enter')
+    #         end["CATEG_PROD"] = np.select(
+    #             [livre, pendencias, ocupado, negativado],
+    #             ["Livre", "Pendente", "Ocupado", "Negativado"],
+    #             default="Validar",
+    #         )
+    #         end["CODPROD"] = pd.to_numeric(end["COD"], errors="coerce").fillna(0).astype(int)
+            
+    #         corte = end[['COD_END']]
+    #         corte["CATEG_PK"] = pd.to_numeric(corte["COD_END"], errors="coerce").fillna(0).astype(int)
+    #         corte = corte.drop(columns= 'COD_END')
 
-                # Sucesso do item atual
-                fim = time.perf_counter()
-                tempo_segundos = fim - inicio
-                print(
-                    f"\rProgresso: [{fase}/{total_itens}] - Itens restantes: {total_itens - fase} | {timedelta(seconds=int(tempo_segundos))}", 
-                    end="", flush=True)
-                lista.append(fase)
+    #         base_dados["CODPROD"] = pd.to_numeric(base_dados["CODPROD"], errors="coerce").fillna(0).astype(int)
+    #         base_dados["DESTINO"] = pd.to_numeric(base_dados["DESTINO"], errors="coerce").fillna(0).astype(int)
 
-            return len(lista)
-        except Exception as e:
-            print('simulador')
-            # ValidarErros(e, etapa="simulador")
+    #         Produtos = base_dados.merge(end, on= 'CODPROD', how= 'left').drop(columns= 'COD')
+    #         Produtos = Produtos.merge(corte, left_on= "DESTINO", right_on= "CATEG_PK", how= "left")
+
+    #         Produtos['CATEG_PK'] = np.where(Produtos['CATEG_PK'].notna(), "Ocupado", "Livre")
+
+    #         dfProntos = Produtos.loc[Produtos['CATEG_PK'] == 'Livre']
+    #         dfPendentes = Produtos.loc[~Produtos['CATEG_PK'] == 'Livre']
+    #         print(end)
+    #     except Exception as e:
+    #         print('Transform', e)
+    #         # self.validador.registrar_log(e, "Transform")
+    #         return False
+    #     try:
+    #         dfProntos = dfProntos.drop_duplicates(subset= 'CODPROD', keep= "last")
+    #         with pd.ExcelWriter(self.listaSave[0], engine= 'openpyxl') as var:
+    #             dfProntos.to_excel(var, sheet_name= "Transferidos", index= False)
+    #             dfPendentes.to_excel(var, sheet_name= "Pendencias", index= False)
+    #             self.valvula_salva = True
+    #             print("etapa Load")
+    #         return dfProntos
+    #     except Exception as e:
+    #         print('Load', e)
+    #         self.validador.registrar_log(e, "Load")
+    #         return False      
+    # def _Simulador(self, df: pd.DataFrame):
+    #     try:
+    #         lista = []
+    #         total_itens = len(df)
+    #         inicio = time.perf_counter()
+    #         for fase, (_, registro) in enumerate(df.iterrows(), 1):
+    #             pag.sleep( self.velocidade)
+
+    #             # --- ETAPA 1: Inserir Código do Produto ---
+    #             cod_prod = registro['CODPROD']
+    #             if not auxiliar._copiar_e_validar(cod_prod):
+    #                 print(f"\nErro ao copiar produto: {cod_prod}")
+    #                 continue
+    #             pag.sleep( self.velocidade)
+    #             pag.hotkey("ctrl", "v")
+    #             pag.sleep( self.velocidade)
+    #             pag.press('enter')
+
+    #             # --- ETAPA 2: Inserir Endereço ---
+    #             destino = registro['DESTINO']
+    #             if not auxiliar._copiar_e_validar(destino):
+    #                 print(f"Erro ao copiar endereço: {destino}")
+    #                 continue
+    #             pag.sleep( self.velocidade)
+    #             pag.hotkey("ctrl", "v")
+    #             pag.sleep( self.velocidade)
+
+    #             for _ in range(3):
+    #                 pag.press('enter')
+
+    #             # Sucesso do item atual
+    #             fim = time.perf_counter()
+    #             tempo_segundos = fim - inicio
+    #             lista.append(fase)
+
+    #         return len(lista)
+    #     except Exception as e:
+    #         print('simulador')
+    #         # ValidarErros(e, etapa="simulador")
 
 if __name__ == "__main__":
     TransferirPROD()
