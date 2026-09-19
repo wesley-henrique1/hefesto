@@ -140,9 +140,8 @@ class TransferirPROD:
 
             Produtos['CATEG_PK'] = np.where(Produtos['CATEG_PK'].notna(), "Ocupado", "Livre")
 
-            # dfProntos = Produtos.query("CATEG_PROD in ['Livre', 'Ocupado'] and CATEG_PK == 'Livre'").copy()
             dfProntos = Produtos.loc[Produtos['CATEG_PK'] == 'Livre']
-            dfPendentes = Produtos.loc[Produtos['CATEG_PK'] == 'Livre']
+            dfPendentes = Produtos.loc[~Produtos['CATEG_PK'] == 'Livre']
             print(end)
         except Exception as e:
             print('Transform', e)

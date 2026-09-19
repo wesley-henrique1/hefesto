@@ -6,11 +6,11 @@ from pathlib import Path
 import importlib.util
 import os
 class ExecuteBot:
-    def __init__(self, chave, entrada, saida, rotas):
+    def __init__(self, chave: str, entrada: Path, saida: Path, rotas: dict):
         self.ancora = CRUD_DB('bots')
-        self.entrada = entrada
+        self.entrada = str(entrada)
+        self.saida = str(saida)
         self.rotas = rotas
-        self.saida = saida
 
         self.dicTemp = self.ancora.BuscarVlr()
         self.localBot = Path(_Caminho.PastaBot)
@@ -24,7 +24,6 @@ class ExecuteBot:
         self.local = self.localBot / 'status_bot.json'
         self.__CriarJson()
         self.__Importar(chave)
-        self.__ApagarJson()
         pass
 
     def __CriarJson(self):
@@ -46,58 +45,35 @@ class ExecuteBot:
             os.remove(self.local)          
         
     def __Importar(self, chave):
-        nomeClasse = self.dicTemp[chave]['_classes']
-        nomeModulo = self.dicTemp[chave]['_Modulo']
+        try:
+            nomeClasse = self.dicTemp[chave]['_classes']
+            print("\nTeste de passagem",nomeClasse)
+            nomeModulo = self.dicTemp[chave]['_Modulo']
 
-        arquivo_bot  = list(self.localBot.glob(nomeModulo + ".py"))
-        if not arquivo_bot:
-            print(f"Erro: O arquivo {nomeModulo}.py não foi encontrado na pasta {self.localBot}")
-            return
-        caminho = arquivo_bot[0]
+            arquivo_bot  = list(self.localBot.glob(nomeModulo + ".py"))
+            if not arquivo_bot:
+                print(f"Erro: O arquivo {nomeModulo}.py não foi encontrado na pasta {self.localBot}")
+                return
+            caminho = arquivo_bot[0]
+        except Exception as e:
+            print(f"\nerro na hr de procurar o arquivo .py {e}\n")
+        try:
+            spec = importlib.util.spec_from_file_location(nomeModulo, caminho)
+            if spec and spec.loader:
+                moduloCarregado = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(moduloCarregado)
 
-        spec = importlib.util.spec_from_file_location(nomeModulo, caminho)
-        if spec and spec.loader:
-            moduloCarregado = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(moduloCarregado)
+                if hasattr(moduloCarregado, nomeClasse):
+                    classe_bot = getattr(moduloCarregado, nomeClasse)
 
-            if hasattr(moduloCarregado, nomeClasse):
-                classe_bot = getattr(moduloCarregado, nomeClasse)
+                    instancia = classe_bot(entrada= self.entrada, saida= self.saida, rotas= self.rotas)
 
-                instancia = classe_bot(entrada= str(self.entrada), saida= self.saida, rotas= self.rotas)
-
-                valor = instancia._pipeline()
-                print(valor)
+                    valor = instancia._pipeline()
+                    instancia._Simulador(valor)
+                    print(valor)
+                else:
+                    print(f"Erro: A classe '{nomeClasse}' não foi encontrada no arquivo {arquivo_bot.name}")
             else:
-                print(f"Erro: A classe '{nomeClasse}' não foi encontrada no arquivo {arquivo_bot.name}")
-        else:
-            print(f"Erro ao carregar o spec do módulo: {nomeClasse}")
-
-if __name__ == "__main__":
-    rota = path_DB()
-    dictRotas = rota.BuscarVlr()
-    for chave, dados in dictRotas.items():
-        if dados.get('VARIAVEL') == "_OutPut_":
-            caminho = Path(dados.get('PATH', ''))
-            break
-    if not caminho:
-        print("Erro: Caminho de output não foi configurado.")
-
-    caminho.mkdir(parents=True, exist_ok=True)
-    
-    Entrada = caminho / "EntradaBot.xlsx"
-    Saida = caminho / "SaidaBot.xlsx"
-    if not os.path.exists(Entrada):
-        etapas = {
-            'transferencia': ["CODPROD"],
-            "Retirada": ['CODPROD', 'DTULTENT', 'QTESTGER', 'OBSFL'],
-            'transf3707': ["CODPROD", "DESTINO"],
-            'Etapa_3': ["CODPROD", "PL_LASTRO", "PL", "CAP", "QTEnd", "V_CAP"],
-            'adiconarPK': ["CODPROD", "DESTINO", 'CAPACIDADE', 'PONTO_REP']
-        }
-
-        with pd.ExcelWriter(Entrada, engine='openpyxl') as writer:
-            for nome_aba, colunas in etapas.items():
-                pd.DataFrame(columns=colunas).to_excel(writer, sheet_name=nome_aba, index=False)
-
-
-    ExecuteBot(chave='BOT_001', entrada= Entrada,saida= Saida, rotas= dictRotas)
+                print(f"Erro ao carregar o spec do módulo: {nomeClasse}")
+        except Exception as e:
+            print(f"\nerro na etapa de modularização: {e}\n")
