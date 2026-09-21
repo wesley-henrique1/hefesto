@@ -17,7 +17,7 @@ class __auxiliares:
             for chave, dados in item.items():
                 estado_atual = dados["__estado__"].get()           
                 if estado_atual == "1":
-                    listIniciar.append(dados)
+                    listIniciar.append(item)
         print(listIniciar)
 
     def FUNC_Limpar(self):
@@ -35,12 +35,6 @@ class __auxiliares:
         print("demandas 3... 2.. 1...")
     def FUNC_config(self):
         menu.Menu()
-    def testeComando(self, fase):
-        for item in self.MapaBox:
-            for chave, dados in item.items():
-                estado_atual = dados["__estado__"].get()           
-                if estado_atual == "1":
-                    print(f"O relatório '{dados['_Nomenclatura']}' ({chave}) está MARCADO.")
 
     def AbrirGIT(self, event=None):
         webbrowser.open("https://github.com/wesley-henrique1")
