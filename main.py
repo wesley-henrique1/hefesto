@@ -1,17 +1,34 @@
 from src.lib.settings import _Imagens, _Icone
-from src.lib.admDB import CRUD_DB
+from src.lib.modErros import ModularErros
 from src.views import menu, botGUI
+from src.lib.admDB import CRUD_DB
+from typing import Literal
 from PIL import Image
 
-import webbrowser
 import customtkinter as ctk
+import webbrowser
 import math
 
+validador = ModularErros(fonte= "GUI - Bots")
 class __auxiliares:
     def FUNC_Iniciar(self):
-        print("iniciar 3... 2.. 1...")
+        listIniciar = []
+        for item in self.MapaBox:
+            for chave, dados in item.items():
+                estado_atual = dados["__estado__"].get()           
+                if estado_atual == "1":
+                    listIniciar.append(dados)
+        print(listIniciar)
+
     def FUNC_Limpar(self):
-        print("Limpando...")
+        try:
+            for dicionario in self.MapaBox:
+                for registro in dicionario.keys():
+                    dicionario[registro]['checkbox'].deselect()
+            self.contador.configure(text= "PROGRESSO: 0/0 | MODULO.py | tempo: 00:00:00")
+            self.logArquivo.delete("0.0", ctk.END)
+        except Exception as e:
+            validador.registrar_log(e, "FUNC_Limpar")
     def FUNC_bot(self):
         botGUI.BotsUI()
     def FUNC_demandas(self):
@@ -157,7 +174,7 @@ class Main(__auxiliares):
             text_color= self.preto,
             fg_color= self.branco,
             border_width= 3,
-            command= self.FUNC_Limpar
+            command= lambda: self.FUNC_Limpar()
         )
         self.btBots = ctk.CTkButton(
             tela,
@@ -202,7 +219,7 @@ class Main(__auxiliares):
                     fg_color=self.vermelho,
                     hover_color=self.vermelho,
                     border_color=self.preto,
-                    command= lambda: self.testeComando(self.MapaBox)
+                    # command= lambda: self.testeComando(self.MapaBox)
                 )
                 valor[registro]['checkbox'] = boxNome
         pass
