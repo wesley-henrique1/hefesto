@@ -1,85 +1,88 @@
-import json
-from .admDB import CRUD_DB, path_DB
-from .settings import _Caminho, _DataJson
-import pandas as pd
+from src.lib.settings import _Caminho, _DataBase
+from src.lib.admDB import CRUD_DB, KeysDB
+from src.lib.modErros import ModularErros
+from tkinter import messagebox as msgbox
 from pathlib import Path
 import importlib.util
+
 import os
+validador = ModularErros(fonte= "BOT - EXECUTOR")
 class ExecuteBot:
-    def __init__(self, chave: str, rotas: dict, entrada: Path, saida: Path,):
-        self.dictJson = {
-            'chave_modulo': chave,
-            'textoUI': "INICIO",
-            'fase': 0,
-            'boleano': False
-        }
+    def __init__(self, UI, chave: str, rotas: dict, entrada: Path, saida: Path):
+        self.ancoraUI = UI
         self.rotas = rotas
         self.entrada = str(entrada)
         self.saida = str(saida)
-
         ancora = CRUD_DB('bots')
         self.dicTemp = ancora.BuscarVlr()
 
         self.localBot = Path(_Caminho.PastaBot)
-        self.local = self.localBot / 'status_bot.json'
 
-        self.__CriarJson(local= self.local, dicionario= self.dictJson)
-        self.__Importar(chave)
-        pass
+        self.instancia_atual = None
+        self.valor_atual = None
+        self.chave = chave
 
-    def __CriarJson(self, local: Path, dicionario: dict):
-        with open(local, mode= "w", encoding= "utf-8") as f:
-
-            """
-            validar depois uma forma de conversa escondida entre os modulos
-            """
-            json.dump(dicionario, f, ensure_ascii=False, indent=4)
-            json.dumps(dicionario, ensure_ascii= False)
-    
-    def __SalvarApartir(self, valor):
-        valor['boleano'] = False
-        with open(self.local, "w", encoding="utf-8") as f:
-            json.dump(valor, f, ensure_ascii=False, indent=4)
-
-    def __Abrir(self):
-        Status = json.loads(self.local.read_text(encoding="utf-8"))
-        return Status
-    
-    def __ApagarJson(self):
-        data = self.__Abrir()
-        if not data['boleano'] and self.local.exists():
-            os.remove(self.local)          
-        
-    def __Importar(self, chave):
+    def carregar_modulo(self):
         try:
-            nomeClasse = self.dicTemp[chave]['_classes']
-            print("\nTeste de passagem",nomeClasse)
-            nomeModulo = self.dicTemp[chave]['_Modulo']
+            nomeClasse = self.dicTemp[self.chave]['_classes']
+            nomeModulo = self.dicTemp[self.chave]['_Modulo']
 
-            arquivo_bot  = list(self.localBot.glob(nomeModulo + ".py"))
+            arquivo_bot = list(self.localBot.glob(nomeModulo + ".py"))
             if not arquivo_bot:
-                print(f"Erro: O arquivo {nomeModulo}.py não foi encontrado na pasta {self.localBot}")
-                return
+                msgbox.showerror("Erro de Módulo", f"O arquivo '{nomeModulo}.py' não existe na pasta de execução:\n{self.localBot}")
+                return None
             caminho = arquivo_bot[0]
         except Exception as e:
-            print(f"\nerro na hr de procurar o arquivo .py {e}\n")
+            validador.registrar_log(e, "Carregamento modulo")
+            return None
+
         try:
             spec = importlib.util.spec_from_file_location(nomeModulo, caminho)
+
             if spec and spec.loader:
                 moduloCarregado = importlib.util.module_from_spec(spec)
                 spec.loader.exec_module(moduloCarregado)
-
+                
                 if hasattr(moduloCarregado, nomeClasse):
                     classe_bot = getattr(moduloCarregado, nomeClasse)
 
-                    instancia = classe_bot(entrada= self.entrada, saida= self.saida, rotas= self.rotas)
-
-                    valor = instancia._pipeline()
-                    instancia._Simulador(valor)
-                    print(valor)
+                    self.instancia_atual = classe_bot(
+                        UI= self.ancoraUI,
+                        entrada=self.entrada, 
+                        saida=self.saida, 
+                        rotas=self.rotas, 
+                    )
+                    try:
+                        self.valor_atual = self.instancia_atual._pipeline()
+                        self.ancoraUI.contagem.configure(text= f"Total de Valores a serem processados: {self.valor_atual['CODPROD'].nunique()}")
+                        return self.valor_atual
+                    except Exception as e:
+                        validador.registrar_log(e, "execute_pipeline")
+                        return None
                 else:
-                    print(f"Erro: A classe '{nomeClasse}' não foi encontrada no arquivo {arquivo_bot.name}")
+                    msgbox.showerror(
+                        "Classe Não Encontrada",
+                        f"A classe estrutural '{nomeClasse}' não foi localizada dentro do arquivo '{arquivo_bot.name}'.\n\nVerifique se o nome da classe está correto no cadastro e no código-fonte."
+                    )
             else:
-                print(f"Erro ao carregar o spec do módulo: {nomeClasse}")
+                msgbox.showerror(
+                    "Erro de Carregamento",
+                    f"Não foi possível carregar as especificações (spec) do módulo para a classe '{nomeClasse}'.\n\nO arquivo pode estar corrompido, incompleto ou inacessível."
+                )
         except Exception as e:
-            print(f"\nerro na etapa de modularização: {e}\n")
+            validador.registrar_log(e, "execute_Modulo")
+        
+        return None
+
+    def executar_simulador(self):
+        try:
+            if not self.instancia_atual or self.valor_atual is None:
+                msgbox.showwarning(
+                    "Nenhuma Execução",
+                    "Não há nenhuma execução pendente ou pipeline carregado para simular no momento.\n\nPor favor, selecione e inicie um módulo antes de tentar a simulação."
+                )
+                return
+
+            self.instancia_atual._Simulador(self.valor_atual)
+        except Exception as e:
+            validador.registrar_log(e, "Simulador")

@@ -1,22 +1,41 @@
-import json
+import sqlite3
+import os
 
-def executar_passo(self):
-    # Pega a fase atual que veio do JSON
-    fase_atual = self.dictStatus.get('fase', 0)
-    
-    if fase_atual < 10:
-        # Incrementa o progresso
-        self.dictStatus['fase'] = fase_atual + 1
-        self.dictStatus['textoUI'] = f"Processando o item {fase_atual + 1} de 10"
-        self.dictStatus['boleano'] = True # Continua rodando
-        print("Modulo:", self.dictStatus['textoUI'])
-    else:
-        # Chegou no fim
-        self.dictStatus['textoUI'] = "Processamento concluído!"
-        self.dictStatus['boleano'] = False # Avisa que terminou
-        print("Modulo: Finalizado!")
+class ConectarDB:
+    def __init__(self, caminho):
+        self.DataBase = caminho
+        pass
+    def __conectar(self, sql: str, parametros: tuple = (), retornar_linha: bool= False):
+        with sqlite3.connect(self.DataBase) as conn:
+            cursor = conn.cursor()
 
-    # Salva o estado atualizado para a interface ler
-    with open(self.caminho, "w", encoding="utf-8") as f:
-        json.dump(self.dictStatus, f, ensure_ascii=False, indent=4)
+            cursor.execute(self.__CriarTabela())
+            cursor.execute(sql, parametros)
+            if retornar_linha:
+                Valr = cursor.fetchall()
+                return Valr
+            foi_alterado = cursor.rowcount > 0
+            return foi_alterado
 
+    def BuscarVlr(self):
+        dicionario = {}
+
+        query = f"""
+        SELECT *
+        FROM {self.NomeTabela}"""
+        dados = self.__conectar(sql= query, retornar_linha= True)
+
+        for linha in dados:
+            dicionario[linha[0]] = {
+                "VARIAVEL": linha[1],
+                "PATH": linha[2],
+                "ESTADO": linha[3],
+            }
+        return dicionario
+    def DeletarVlr(self, valor: tuple):
+        if os.path.exists(self.DataBase):
+            os.remove(self.DataBase)
+    def InserirVle(self, valor: tuple):
+        query = f"INSERT INTO {self.NomeTabela} (CHAVES, TEXTO, ESTADO) VALUES (?, ?, ?)"  
+        self.__conectar(sql= query, parametros= valor)   
+        pass

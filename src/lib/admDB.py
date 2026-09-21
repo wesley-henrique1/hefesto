@@ -1,8 +1,8 @@
-import sqlite3
-import json
-from .settings import _DataBase, _DataJson
-
+from src.lib.settings import _DataBase, _DataJson
 from typing import Literal
+
+import os
+import sqlite3
 
 class ErroDB:
     def __init__(self):
@@ -63,6 +63,54 @@ class ErroDB:
             return valor
         pass
 
+class KeysDB:
+    def __init__(self):
+        self.DataBase = _DataBase.keys
+        self.NomeTabela = "keystb"
+        pass
+    def __CriarTabela(self):
+        query = f"""
+        CREATE TABLE IF NOT EXISTS {self.NomeTabela} (
+            CHAVES TEXT NOT NULL,
+            TEXTO TEXT NOT NULL,
+            ESTADO TEXT NOT NULL
+        );
+        """
+        return query
+    def __conectar(self, sql: str, parametros: tuple = (), retornar_linha: bool= False):
+        with sqlite3.connect(self.DataBase) as conn:
+            cursor = conn.cursor()
+
+            cursor.execute(self.__CriarTabela())
+            cursor.execute(sql, parametros)
+            if retornar_linha:
+                Valr = cursor.fetchall()
+                return Valr
+            foi_alterado = cursor.rowcount > 0
+            return foi_alterado
+    def BuscarVlr(self):
+        dicionario = {}
+
+        query = f"""
+        SELECT *
+        FROM {self.NomeTabela}"""
+        dados = self.__conectar(sql= query, retornar_linha= True)
+
+        for linha in dados:
+            dicionario[linha[0]] = {
+                "VARIAVEL": linha[1],
+                "PATH": linha[2],
+                "ESTADO": linha[3],
+            }
+        return dicionario
+    def DeletarVlr(self):
+        if os.path.exists(self.DataBase):
+            os.remove(self.DataBase)
+    def InserirVle(self, valor: tuple):
+        query = f"INSERT INTO {self.NomeTabela} (CHAVES, TEXTO, ESTADO) VALUES (?, ?, ?)"  
+        self.__conectar(sql= query, parametros= valor)   
+        pass
+
 class path_DB:
     def __init__(self):
         self.DataBase = _DataBase.rotadb
@@ -106,8 +154,6 @@ class path_DB:
                 "PATH": linha[2],
                 "ESTADO": linha[3],
             }
-        with open(str(self.botpath), "w", encoding="utf-8") as valinho:
-            json.dump(dicionario, valinho, ensure_ascii=False, indent=4)
         return dicionario
     def DeletarVlr(self, valor: tuple):
         query = f"DELETE FROM {self.NomeTabela} WHERE CHAVES = ?"
@@ -125,7 +171,6 @@ class path_DB:
         query = f"INSERT INTO {self.NomeTabela} (CHAVES, VARIAVEL, PATH, ESTADO) VALUES (?, ?, ?, ?)"  
         self.__conectar(sql= query, parametros= valor)      
         pass
-
 class Task_DB:
     def __init__(self):
         self.DataBase = _DataBase.taskDb

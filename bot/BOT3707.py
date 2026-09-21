@@ -25,9 +25,6 @@ class auxiliar:
                     caminho = Path(dados.get('PATH', ''))
                     listaRota.append(str(caminho))
         return listaRota
-    # def Casamento(rota):
-    #     caminho = Path(r'C:\MESTRE_COD\projetos\hefesto\bot\status_bot.json')
-    #     dictStatus = json.loads(caminho.read_text(encoding="utf-8"))
         pass
     def limpar_terminal() -> None:
         os.system("cls" if os.name == "nt" else "clear")

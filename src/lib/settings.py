@@ -35,6 +35,7 @@ class _DataBase(_Caminho):
 
     errosdb = dataBase / "errosDb.db"
 
+    keys = dataBase / "keysDB.db"
     botdb = dataBase / "botDB.db"
     modDb = dataBase / "modDB.db"
     taskDb = dataBase / "tarefadb.db"

@@ -1,99 +1,19 @@
-import sys
-from pathlib import Path
-
-file_path = Path(__file__).resolve()
-src_path = file_path.parents[1]
-if str(src_path) not in sys.path:
-    sys.path.append(str(src_path))
-
-from lib.admDB import CRUD_DB, path_DB
-from lib.executeBot import ExecuteBot
+from src.lib.admDB import CRUD_DB, path_DB
+from src.lib.executeBot import ExecuteBot
+from src.lib.modErros import ModularErros
+from src.lib.settings import _Icone
 
 from tkinter import messagebox as msgbox
+from pathlib import Path
+from typing import Literal
+
 import customtkinter as ctk
 import pandas as pd
 import math
 import os
 
+validador = ModularErros(fonte= "GUI - Bots")
 class __auxiliares:
-    def _LimparWidget(self,tesk: str= 'disabled' | 'normal', listBT= list):
-        try:
-            for button in listBT:
-                button.configure(state= tesk)
-            self.Retorno.configure(fg_color= self.branco)
-        except Exception as e:
-            print(e)
-            # validador.registrar_log(e, "_LimparWidget")
-    def _desmarcar(self, listBT= list):
-        try:
-            self._LimparWidget(listBT= listBT, tesk= 'disabled')
-            self.Retorno.configure(fg_color= self.branco)
-
-            for dicionario in self.MapaBox:
-                for registro in dicionario.keys():
-                    dicionario[registro]['checkbox'].deselect()
-        except Exception as e:
-            print(e)
-            # validador.registrar_log(e, "_desmarcar")  
-    def _AbrirFile(self, dictRota: dict):
-        try: 
-            for chave, dados in dictRota.items():
-                if dados.get('VARIAVEL') == "_OutPut_":
-                    caminho = Path(dados.get('PATH', ''))
-                    break
-            if not caminho:
-                print("Erro: Caminho de output não foi configurado.")
-                return
-
-            caminho.mkdir(parents=True, exist_ok=True)
-            
-            Saida = caminho / "SaidaBot.xlsx"
-            Entrada = caminho / "EntradaBot.xlsx"
-        except Exception as e:
-            Entrada = r'c:\Users\User\Desktop\saida_codigos\EntradaBot.xlsx'
-            Saida = pd.DataFrame()
-            print("Erro", e)
-
-        if os.path.exists(Entrada):
-            os.remove(Entrada)
-            print(f"Arquivo {Entrada.name} apagado com sucesso.")
-
-        etapas = {
-            'transferencia': ["CODPROD"],
-            "Retirada": ['CODPROD', 'DTULTENT', 'QTESTGER', 'OBSFL'],
-            'transf3707': ["CODPROD", "DESTINO"],
-            'Etapa_3': ["CODPROD", "PL_LASTRO", "PL", "CAP", "QTEnd", "V_CAP"],
-            'adiconarPK': ["CODPROD", "DESTINO", 'CAPACIDADE', 'PONTO_REP']
-        }
-        with pd.ExcelWriter(Entrada, engine='openpyxl') as writer:
-            for nome_aba, colunas in etapas.items():
-                pd.DataFrame(columns=colunas).to_excel(writer, sheet_name=nome_aba, index=False)
-        os.startfile(Entrada)
-
-        return Entrada, Saida 
-    def _IniciosBot(self,root: ctk.CTk | ctk.CTkToplevel, mapa: list, rotas: dict):
-        chave_selecionada = None
-        for dicionario in mapa:
-            for chave in dicionario.keys():
-                estado_atual = dicionario[chave]['__estado__'].get()
-                if estado_atual == chave:
-                    chave_selecionada = chave
-                    print(f"\n>> Modulo selecionado para iniciar: {chave_selecionada}\n")  
-                    break
-            if chave_selecionada:
-                break
-        if not chave_selecionada:
-            msgbox.showwarning("Aviso", "Nenhum modulo selecionado")
-            print("\n>> Nenhum modulo selecionado")
-            return
-        arquivoEntrada, arquivoSaida = self._AbrirFile(rotas)
-        root.after(10, lambda: ExecuteBot(
-            chave= chave_selecionada, 
-            rotas= rotas,
-            entrada= arquivoEntrada, 
-            saida= arquivoSaida
-        ))
-        pass
     def _CriarAncora(self):
         # Ancora do banco de dados das PATH(caminhos)
         rota = path_DB()
@@ -118,6 +38,153 @@ class __auxiliares:
             )
         return dictRotas, MapaBox
 
+    def _LimparWidget(self,tesk: str= Literal['disabled', 'normal'], listBT= list):
+        try:
+            for button in listBT:
+                button.configure(state= tesk)
+            self.Retorno.configure(fg_color= self.branco)
+        except Exception as e:
+            validador.registrar_log(e, "_LimparWidget")
+    def _desmarcar(self, listBT= list):
+        try:
+            self._LimparWidget(listBT= listBT, tesk= 'disabled')
+            self.Retorno.configure(fg_color= self.branco)
+
+            for dicionario in self.MapaBox:
+                for registro in dicionario.keys():
+                    dicionario[registro]['checkbox'].deselect()
+        except Exception as e:
+            validador.registrar_log(e, "_desmarcar")  
+    def _puxarVlr(self, dictRota):
+        try: 
+            for chave, dados in dictRota.items():
+                if dados.get('VARIAVEL') == "_OutPut_":
+                    caminho = Path(dados.get('PATH', ''))
+                    break
+            if not caminho:
+                msgbox.showerror(
+                    "Caminho de Saída Não Configurado",
+                    "O diretório de output (saída) não foi definido nas configurações do sistema.\n\nPor favor, verifique o cadastro de rotas e caminhos antes de prosseguir."
+                )
+                return
+
+            caminho.mkdir(parents=True, exist_ok=True)
+            
+            entrada = caminho / "EntradaBot.xlsx"
+            saida = caminho / "SaidaBot.xlsx"
+            return entrada, saida
+        except Exception as e:
+            validador.registrar_log(e, "_puxarVlr")  
+
+    def _AbrirFile(self):
+        try:
+            if os.path.exists(self.entrada):
+                os.remove(self.entrada)
+
+            etapas = {
+                'transferencia': ["CODPROD"],
+                "Retirada": ['CODPROD', 'DTULTENT', 'QTESTGER', 'OBSFL'],
+                'BOT3707': ["CODPROD", "DESTINO"],
+                'Etapa_3': ["CODPROD", "PL_LASTRO", "PL", "CAP", "QTEnd", "V_CAP"],
+                'adiconarPK': ["CODPROD", "DESTINO", 'CAPACIDADE', 'PONTO_REP']
+            }
+            with pd.ExcelWriter(self.entrada, engine='openpyxl') as writer:
+                for nome_aba, colunas in etapas.items():
+                    pd.DataFrame(columns=colunas).to_excel(writer, sheet_name=nome_aba, index=False)
+            os.startfile(self.entrada)
+        except Exception as e:
+            validador.registrar_log(e, "_AbrirFile")  
+
+        pass
+    def _IniciosBot(self, root: ctk.CTk | ctk.CTkToplevel, mapa: list, rotas: dict):
+        try:
+            self.btAbrir.configure(state= 'disabled')
+            chave_selecionada = None
+            for dicionario in mapa:
+                for chave in dicionario.keys():
+                    estado_atual = dicionario[chave]['__estado__'].get()
+                    if estado_atual == chave:
+                        chave_selecionada = chave
+                        break
+                if chave_selecionada:
+                    break
+
+            if not chave_selecionada:
+                msgbox.showwarning(
+                    "Seleção Inválida",
+                    "Nenhum módulo de automação foi selecionado.\n\nPor favor, marque um dos módulos na lista antes de tentar iniciar."
+                )
+                return
+            if not self.entrada or not self.saida:
+                msgbox.showwarning(
+                    "Arquivos Não Encontrados",
+                    "Nenhum arquivo de controle do bot foi gerado ou localizado.\n\nPor favor, certifique-se de que os arquivos de entrada e saída foram configurados corretamente antes de iniciar."
+                )
+                return
+
+            def iniciar_execucao_background():
+                self.current_bot_runner = ExecuteBot(
+                    UI= self,
+                    chave=chave_selecionada, 
+                    rotas=rotas,
+                    entrada=self.entrada, 
+                    saida=self.saida
+                )
+            
+                valor_pipeline = self.current_bot_runner.carregar_modulo()
+
+                if valor_pipeline is not None:
+                    self.continuar.configure(state= 'normal')
+                    self.cancelar.configure(state= 'normal')
+
+                else:
+                    msgbox.showerror(
+                        "Erro no Pipeline",
+                        "Ocorreu uma falha durante a execução do pipeline do bot.\n\nVerifique os dados de entrada ou o log do sistema para mais detalhes."
+                    )
+            root.after(10, iniciar_execucao_background)
+        except Exception as e:
+            validador.registrar_log(e, "_IniciosBot")  
+        pass
+    def ClicarSimulador(self, contador: ctk.CTkLabel):
+        try:
+            if hasattr(self, 'current_bot_runner') and self.current_bot_runner:
+                def fazer_contagem(segundos_restantes):
+                    if segundos_restantes > 0:
+                        contador.configure(text=f"Iniciando em {segundos_restantes}...")          
+                        contador.after(1000, lambda: fazer_contagem(segundos_restantes - 1))
+                    else:
+                        contador.configure(text="Executando Simulador...")
+                        import threading
+                        
+                        def rodar_thread_simulador():
+                            self.current_bot_runner.executar_simulador()
+                            contador.after(0, lambda: [
+                                self.continuar.configure(state='disabled'),
+                                self.cancelar.configure(state='disabled'),
+                                contador.configure(text="Simulação concluída!"),
+                                self.btAbrir.configure(state='normal')
+                            ])
+                        thread = threading.Thread(target=rodar_thread_simulador, daemon=True)
+                        thread.start()
+
+                fazer_contagem(5)
+            else:
+                msgbox.showwarning("Aviso", "Nenhum bot carregado para simular.")        
+        except Exception as e:
+            validador.registrar_log(e, "ao_clicar_em_simular")  
+        pass
+    def _cancelar_execucao(self):
+        if hasattr(self, 'current_bot_runner'):
+            del self.current_bot_runner
+        
+        self.continuar.configure(state='disabled')
+        self.cancelar.configure(state='disabled')
+        self.btAbrir.configure(state= 'normal')
+        msgbox.showinfo(
+            "Operação Cancelada",
+            "A execução atual foi interrompida com sucesso a pedido do usuário."
+        )
 class BotsUI(__auxiliares):
     def __init__(self):
         self.familia = "Consolas"
@@ -128,17 +195,18 @@ class BotsUI(__auxiliares):
         self.marrom = "#8a541f"
         self.preto = "#000000"
 
-        root = ctk.CTk()
+        root = ctk.CTkToplevel()
         root.title("AUTOMAÇÃO")
-        root.geometry("440x300")
+        root.geometry("490x340")
         root.configure(fg_color=self.marromClaro)
-        # root.iconbitmap(_Icone.perfil)
+        root.iconbitmap(_Icone.bigorna)
         root.resizable(False, False)
 
         self.dictRotas, self.MapaBox = self._CriarAncora()
+        self.entrada, self.saida = self._puxarVlr(self.dictRotas)
         
         self.__Componentes(root)
-        self.__clicaveis()
+        self.__clicaveis(root)
         self.__localizador()
 
         root.mainloop()
@@ -167,6 +235,7 @@ class BotsUI(__auxiliares):
             border_width= 3,
             border_color= self.preto,
         )
+        
         self.contador = ctk.CTkLabel(
              self.Retorno ,
              text= "Progresso: 000/000 |faltando: 000 |  00:00:00",
@@ -190,12 +259,13 @@ class BotsUI(__auxiliares):
                     hover_color= self.vermelho,
                     fg_color= self.vermelho,
                     border_color= self.preto,
+                    border_width_unchecked=3,
 
                     command= lambda: self._LimparWidget(listBT= [self.btIniciar, self.btParar], tesk= 'normal'),
                 )
                 dicionario[registro]['checkbox'] = boxModulo
         pass
-    def __clicaveis(self):
+    def __clicaveis(self, tela):
         self.btAbrir = ctk.CTkButton(
             self.Painel,
             text= "Abrir Arquivo",
@@ -204,7 +274,7 @@ class BotsUI(__auxiliares):
             text_color_disabled= self.vermelho,
             fg_color= self.branco,
             border_width= 3,
-            command= lambda: self._AbrirFile(self.dictRotas)
+            command= self._AbrirFile
         )
         self.btIniciar = ctk.CTkButton(
             self.Painel,
@@ -215,7 +285,7 @@ class BotsUI(__auxiliares):
             text_color_disabled= self.vermelho,
             fg_color= self.branco,
             border_width= 3,
-            command= lambda: self._IniciosBot(mapa= self.MapaBox, rotas= self.dictRotas)
+            command= lambda: self._IniciosBot(mapa= self.MapaBox, rotas= self.dictRotas, root= tela)
         )
         self.btParar = ctk.CTkButton(
             self.Painel,
@@ -238,6 +308,28 @@ class BotsUI(__auxiliares):
             border_width= 3,
             command= lambda: self._desmarcar(listBT= [self.btIniciar, self.btParar])
         )
+        self.continuar = ctk.CTkButton(
+            self.Retorno,
+            text= "Continuar",
+            state= 'disabled',
+            font= (self.familia, 14, "bold"),
+            text_color= self.preto,
+            text_color_disabled= self.vermelho,
+            fg_color= self.branco,
+            border_width= 3,
+            command=lambda: self.ClicarSimulador(contador= self.contador)
+        )
+        self.cancelar = ctk.CTkButton(
+            self.Retorno,
+            text= "Cancelar",
+            state= 'disabled',
+            font= (self.familia, 14, "bold"),
+            text_color= self.preto,
+            text_color_disabled= self.vermelho,
+            fg_color= self.branco,
+            border_width= 3,
+            command= self._cancelar_execucao
+        )
         pass
     def __localizador(self):
         self.Painel.place_configure(relx= 0.02, rely= 0.02, relheight= 0.40, relwidth= 0.96)
@@ -251,27 +343,25 @@ class BotsUI(__auxiliares):
         self.btParar.place_configure(relx= 0.56, rely= 0.70, relheight= 0.20, relwidth= 0.20)
         self.desmarcar.place_configure(relx= 0.78, rely= 0.70, relheight= 0.20, relwidth= 0.20)
 
+        self.continuar.place_configure(relx=0.275, rely=0.70, relheight=0.20, relwidth=0.20)
+        self.cancelar.place_configure(relx=0.525, rely=0.70, relheight=0.20, relwidth=0.20)
         startX = 0.02
         startY = 0.06
         total = len(self.MapaBox)
 
-        limite_coluna = math.ceil(total / 2)
+        limite_coluna = math.ceil(total / 4)
 
         for index, dicionario in enumerate(self.MapaBox):
             for registro in dicionario.keys():
                 
                 dicionario[registro]['checkbox'].place(
-                    rely=startY, relx=startX, relwidth=0.40, relheight=0.20
+                    rely=startY, relx=startX, relwidth=0.28, relheight=0.20
                 )
-                startY += 0.22
+                startY += 0.24
                 if (index + 1) == limite_coluna:
-                    startX = 0.35
+                    startX = 0.34
                     startY = 0.06 
                 elif (index + 1) == limite_coluna * 2:
-                    startX = 0.68
+                    startX = 0.66
                     startY = 0.06       
         pass
-
-
-if __name__ == "__main__":
-    BotsUI()

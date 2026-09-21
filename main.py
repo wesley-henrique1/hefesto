@@ -1,6 +1,6 @@
 from src.lib.settings import _Imagens, _Icone
 from src.lib.admDB import CRUD_DB
-from src.views.menu import Menu
+from src.views import menu, botGUI
 from PIL import Image
 
 import webbrowser
@@ -13,11 +13,11 @@ class __auxiliares:
     def FUNC_Limpar(self):
         print("Limpando...")
     def FUNC_bot(self):
-        print("bot 3... 2.. 1...")
+        botGUI.BotsUI()
     def FUNC_demandas(self):
         print("demandas 3... 2.. 1...")
     def FUNC_config(self):
-        Menu()
+        menu.Menu()
     def testeComando(self, fase):
         for item in self.MapaBox:
             for chave, dados in item.items():
