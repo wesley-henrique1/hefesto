@@ -47,9 +47,6 @@ class  auxiliares:
                     self.tesk.Consultas(telas=self.telaAlterar)
                 case "ROTAS":
                     self.rota.Consultas(telas=self.telaAlterar)
-
-                case _:
-                    print("Desconhecido")
         except Exception as e:
             validador.registrar_log(e, "_centerConsulta")
     def _centerEditar(self):
@@ -64,9 +61,6 @@ class  auxiliares:
                     self.tesk.Editar(telas=self.telaAlterar)
                 case "ROTAS":
                     self.rota.Editar(telas=self.telaAlterar)
-
-                case _:
-                    print("Desconhecido")
         except Exception as e:
             validador.registrar_log(e, "_centerEditar")
     def _centerCadastrar(self):
@@ -81,9 +75,6 @@ class  auxiliares:
                     self.tesk.Cadastrar(telas=self.telaAlterar)
                 case "ROTAS":
                     self.rota.Cadastrar(telas=self.telaAlterar)
-
-                case _:
-                    print("Desconhecido")
         except Exception as e:
             validador.registrar_log(e, "_centerCadastrar")
     def _centerApagar(self):
@@ -98,8 +89,6 @@ class  auxiliares:
                     self.tesk.Apagar(telas=self.telaAlterar)
                 case "ROTAS":
                     self.rota.Apagar(telas=self.telaAlterar)
-                case _:
-                    print("Desconhecido")
         except Exception as e:
             validador.registrar_log(e, "_centerCadastrar")
 

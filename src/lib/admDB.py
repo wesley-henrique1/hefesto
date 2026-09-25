@@ -26,9 +26,9 @@ class ErroDB:
             "ConnectionError": "Falha de conexão com a internet ou o servidor remoto recusou o acesso.",
             "Timeout": "O servidor demorou muito para responder. A operação foi cancelada para evitar travamentos do sistema.",
             "AttributeError": "O sistema tentou acessar uma propriedade ou função interna que não existe ou está indisponível.",
+            "UnboundLocalError": "Não foi possível concluir a ação porque uma informação necessária não estava pronta a tempo. Tente novamente em instantes.",
             "Exception": "Ocorreu um erro inesperado no sistema. Entre em contato com o administrador."
         }
-
         pass
 
     def __CriarTabela(self):

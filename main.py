@@ -1,8 +1,7 @@
-from src.lib.settings import _Imagens, _Icone
+from src.lib import admDB, executarMod, settings
 from src.lib.modErros import ModularErros
 from src.views import menu, botGUI
-from src.lib.admDB import CRUD_DB
-from typing import Literal
+from tkinter import messagebox as msgbox
 from PIL import Image
 
 import customtkinter as ctk
@@ -11,24 +10,33 @@ import math
 
 validador = ModularErros(fonte= "GUI - Bots")
 class __auxiliares:
-    def FUNC_Iniciar(self):
+    def FUNC_Iniciar(self, root: ctk.CTk):
         listIniciar = []
         for item in self.MapaBox:
             for chave, dados in item.items():
                 estado_atual = dados["__estado__"].get()           
                 if estado_atual == "1":
                     listIniciar.append(item)
-        print(listIniciar)
-
+        if not listIniciar:
+            msgbox.showwarning(
+                "Nenhuma Seleção",
+                "Nenhum módulo foi selecionado para iniciar.\n\nPor favor, escolha ao menos uma opção antes de prosseguir."
+            )
+            return
+        root.after(10, lambda: executarMod.executeMOD(UI= self, listaMOD= listIniciar))
+        pass
     def FUNC_Limpar(self):
         try:
             for dicionario in self.MapaBox:
                 for registro in dicionario.keys():
                     dicionario[registro]['checkbox'].deselect()
             self.contador.configure(text= "PROGRESSO: 0/0 | MODULO.py | tempo: 00:00:00")
-            self.logArquivo.delete("0.0", ctk.END)
+            self.logArquivo.configure(state="normal")
+            self.logArquivo.delete("0.0", "end")
+            self.logArquivo.configure(state="disabled")        
         except Exception as e:
             validador.registrar_log(e, "FUNC_Limpar")
+
     def FUNC_bot(self):
         botGUI.BotsUI()
     def FUNC_demandas(self):
@@ -48,17 +56,20 @@ class Main(__auxiliares):
         self.vermelho = "#8e3312"
         self.familia = "Consolas"
 
+        self._Icone = settings._Icone()
+        self._Imagens  = settings._Imagens()
+
         root = ctk.CTk()
         root.title("Gerenciador_8000")
         root.geometry("700x500")
         root.configure(fg_color=self.marromClaro)
-        root.iconbitmap(_Icone.perfil)
+        root.iconbitmap(self._Icone.perfil)
         root.resizable(False, False)
 
-        modulo = CRUD_DB(base= "modulos")
-        dicNome = modulo.BuscarVlr()
-        self.MapaBox = []
+        self.dictRotas = admDB.path_DB().BuscarVlr()
+        dicNome = admDB.CRUD_DB(base= "modulos").BuscarVlr()
 
+        self.MapaBox = []
         for chave in dicNome.keys():
             if  dicNome[chave]['_estado'] == '0':
                     continue
@@ -67,10 +78,14 @@ class Main(__auxiliares):
                 {chave:{
                     "checkbox": int, 
                     "__estado__": var_estado, 
-                    '_Nomenclatura': dicNome[chave]['_Nomenclatura']
+                    '_Nomenclatura': dicNome[chave]['_Nomenclatura'],
+                    "_classes": dicNome[chave]['_classes'], 
+                    "_Modulo": dicNome[chave]['_Modulo']
                     }
+                    
                 }
             )
+        pass
 
         self.__Componentes(root)
         self.__TelasImgs()
@@ -101,7 +116,7 @@ class Main(__auxiliares):
             tela,
             fg_color= self.branco,
             font= (self.familia, 12),
-
+            text_color= self.preto,
             border_color= self.preto,
             border_width= 3,
             border_spacing= 4,
@@ -116,8 +131,8 @@ class Main(__auxiliares):
         pass
     def __TelasImgs(self):
         self.logoPy = ctk.CTkImage(
-            light_image= Image.open(_Imagens.logoPy),
-            dark_image= Image.open(_Imagens.logoPy),
+            light_image= Image.open(self._Imagens .logoPy),
+            dark_image= Image.open(self._Imagens .logoPy),
             size= (130, 130)
         )
         self.labelLogo = ctk.CTkLabel(
@@ -131,8 +146,8 @@ class Main(__auxiliares):
         )
 
         self.icone_imagem = ctk.CTkImage(
-            light_image= Image.open(_Imagens.perfil),
-            dark_image= Image.open(_Imagens.perfil),
+            light_image= Image.open(self._Imagens .perfil),
+            dark_image= Image.open(self._Imagens .perfil),
             size= (140, 140)
         )
         self.labelPerfil = ctk.CTkLabel(
@@ -159,7 +174,7 @@ class Main(__auxiliares):
             text_color= self.preto,
             fg_color= self.branco,
             border_width= 3,
-            command= self.FUNC_Iniciar
+            command= lambda: self.FUNC_Iniciar(tela)
         )
         self.btLimpar = ctk.CTkButton(
             tela,
@@ -213,7 +228,6 @@ class Main(__auxiliares):
                     fg_color=self.vermelho,
                     hover_color=self.vermelho,
                     border_color=self.preto,
-                    # command= lambda: self.testeComando(self.MapaBox)
                 )
                 valor[registro]['checkbox'] = boxNome
         pass
@@ -225,12 +239,10 @@ class Main(__auxiliares):
 
         # Painel dos Pipelanes
         startX = 0.02
-        startY = 0.02
+        startY = 0.04
         total = len(self.MapaBox)
 
         limite_primeira_coluna = math.ceil(total / 2)
-
-        print(f"Total: {total}, Itens na 1ª coluna: {limite_primeira_coluna}")
 
         for index, dicionario in enumerate(self.MapaBox):
             for registro in dicionario.keys():
@@ -241,8 +253,8 @@ class Main(__auxiliares):
                 
                 startY += 0.14
                 if (index + 1) == limite_primeira_coluna:
-                    startX = 0.52  # Posição X da segunda coluna
-                    startY = 0.02  # Reseta o topo para a segunda coluna
+                    startX = 0.52
+                    startY = 0.02
 
         # Painel dos Botões (posicionados dentro do self.painel)
         self.btIniciar.place(rely=0.02, relx=0.04, relwidth=0.92, relheight=0.08)

@@ -31,7 +31,7 @@ class ModularErros:
             with open("log_erros.txt", "a", encoding="utf-8") as f:
                 f.write(log_conteudo)
             messagebox.showerror("Log erros", log_conteudo)
-            print(f" Log gravado para a etapa: {etapa}")
+            print(f"\nLog gravado para a etapa: {etapa}\n")
         except Exception as erro_f:
             messagebox.showerror("Log erros", f"Falha crítica ao gravar log: {erro_f}")
-            print(f"Falha crítica ao gravar log: {erro_f}")
+            print(f"\nFalha crítica ao gravar log: {erro_f}\n")

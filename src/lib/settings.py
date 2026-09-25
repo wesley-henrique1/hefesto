@@ -15,6 +15,7 @@ class _Icone(_Caminho):
     icones = _Caminho.assets / "icon"
 
     bigorna = icones / "bigorna.ico"
+    caixas = icones / "caixas.ico"
     blocoNotas = icones / "bloco_notas.ico"
     engrenagem = icones / "engrenagem.ico"
     perfil = icones/ "perfil.ico"
@@ -45,10 +46,3 @@ class _DataBase(_Caminho):
 class _DataJson(_Caminho):
     json = _Caminho.assets / "json"
     rotas = json / "rotas.json"
-if __name__ == "__main__":
-    ancora = _Caminho()
-    _Icone = _Icone()
-    _Imagens = _Imagens()
-    print(_Caminho)
-    print("bigorna:", _Icone.bigorna)
-    print("bigorna:", _Imagens.bigorna)

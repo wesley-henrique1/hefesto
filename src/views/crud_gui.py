@@ -18,7 +18,6 @@ class  auxiliares:
         return len(texto) <= limite
     def _TextCampo(self):
         msg.showerror("ERRO", f"Erro: Todos os campos de texto devem ser preenchidos!")
-        print("Erro: Todos os campos de texto devem ser preenchidos!")
 
     def _LImpar(self, estado):
         self.entryDesc.configure(state="normal")
@@ -47,8 +46,6 @@ class  auxiliares:
             self.entryDesc.insert(0, "Codigo não encotrado")
             self.entryModulo.delete(0, 'end')
             self.entryClasse.delete(0, 'end')
-
-            print(f"Chave '{chave}' não encontrada.")
             return
         
         if self.base == 'task':
@@ -237,7 +234,6 @@ class CRUD_(auxiliares):
 
             if not chave:
                 msg.showwarning("AVISO", "O campo ID (chave)  é obrigatório!")
-                print("Erro: O campo ID (Chave) é obrigatório!")
                 return
             match contrato:
                 case "Apagar":
@@ -249,10 +245,8 @@ class CRUD_(auxiliares):
                         valor = self.ancoraDB.DeletarVlr((chave,))
                     if valor:
                         msg.showinfo("FEITO", f"Registro '{chave}' apagado com sucesso!")
-                        print(f"Registro '{chave}' apagado com sucesso!")
                     else:
                         msg.showerror("Erro", f"Registro '{chave}' não foi encontrado na base de dados.")
-                        print(f"Aviso: Tentativa de apagar a chave '{chave}', mas ela não existe.")       
                 case "cadastrar" | "editar":
                     if self.base == 'task':
                         self.entryClasse.configure(state="disabled")
@@ -271,12 +265,10 @@ class CRUD_(auxiliares):
                         if contrato == "cadastrar":
                             self.ancoraTesk.InserirVle((chave, nome, dias, estado,))
                             msg.showinfo("FEITO", f"Registro '{chave}' cadastrado com sucesso!")
-                            print(f"Registro '{chave}' cadastrado com sucesso!")
                         
                         elif contrato == "editar":
                             self.ancoraTesk.EditarVlr((nome, dias, estado, chave,))
                             msg.showinfo("FEITO", f"Registro '{chave}' atualizado com sucesso!")
-                            print(f"Registro '{chave}' atualizado com sucesso!")
                         pass
                     elif self.base == 'rota':
                         self.entryClasse.configure(state="disabled")
@@ -293,7 +285,6 @@ class CRUD_(auxiliares):
                             self.ancoraRota.EditarVlr((var, str(path), estado, chave,))
 
                         msg.showinfo("FEITO", f"Registro '{chave}' cadastrado com sucesso!")
-                        print(f"Registro '{chave}' cadastrado com sucesso!")
                         pass
                     else: 
                         nome = self.entryDesc.get().strip()
@@ -308,12 +299,10 @@ class CRUD_(auxiliares):
                         if contrato == "cadastrar":
                             self.ancoraDB.InserirVle((chave, nome, modulo, clase, estado,))
                             msg.showinfo("FEITO", f"Registro '{chave}' cadastrado com sucesso!")
-                            print(f"Registro '{chave}' cadastrado com sucesso!")
                         
                         elif contrato == "editar":
                             self.ancoraDB.EditarVlr((nome, modulo, clase, estado, chave,))
                             msg.showinfo("FEITO", f"Registro '{chave}' atualizado com sucesso!")
-                            print(f"Registro '{chave}' atualizado com sucesso!")
 
             self.entryID.delete(0, "end")
             self.entryDesc.delete(0, "end")
