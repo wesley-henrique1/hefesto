@@ -22,11 +22,18 @@ class ExecuteBot:
         self.valor_atual = None
         self.chave = chave
 
+    def Controladora(self, boleano: bool):
+        self.instancia_atual.Controladora(boleano)
+        pass
+
     def carregar_modulo(self):
         try:
             nomeClasse = self.dicTemp[self.chave]['_classes']
             nomeModulo = self.dicTemp[self.chave]['_Modulo']
-
+            if not nomeModulo or nomeModulo.strip().lower() in [".venv", "venv", "env"]:
+                validador.registrar_log(f"Tentativa inválida de execução do módulo restrito: {nomeModulo}", "Segurança Módulo")
+                msgbox.showwarning("Acesso Negado", "O módulo selecionado é restrito e não pode ser executado.")
+                return None
             arquivo_bot = list(self.localBot.glob(nomeModulo + ".py"))
             if not arquivo_bot:
                 msgbox.showerror("Erro de Módulo", f"O arquivo '{nomeModulo}.py' não existe na pasta de execução:\n{self.localBot}")
@@ -74,15 +81,12 @@ class ExecuteBot:
         
         return None
 
-    def executar_simulador(self):
+    def executar_simulador(self, cancel_event=None):
         try:
             if not self.instancia_atual or self.valor_atual is None:
-                msgbox.showwarning(
-                    "Nenhuma Execução",
-                    "Não há nenhuma execução pendente ou pipeline carregado para simular no momento.\n\nPor favor, selecione e inicie um módulo antes de tentar a simulação."
-                )
+                msgbox.showwarning("Nenhuma Execução", "Não há nenhuma execução pendente...")
                 return
 
-            self.instancia_atual._Simulador(self.valor_atual)
+            self.instancia_atual._Simulador(self.valor_atual, cancel_event=cancel_event)
         except Exception as e:
             validador.registrar_log(e, "Simulador")

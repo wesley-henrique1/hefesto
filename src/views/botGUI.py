@@ -9,6 +9,7 @@ from typing import Literal
 
 import customtkinter as ctk
 import pandas as pd
+import threading
 import math
 import os
 
@@ -45,6 +46,21 @@ class __auxiliares:
             self.Retorno.configure(fg_color= self.branco)
         except Exception as e:
             validador.registrar_log(e, "_LimparWidget")
+    def _limpar_tela(self):
+        try:
+            self.contagem.configure(text="Total de Valores a serem processados: 000")
+            self.contador.configure(text="Progresso: 000/000 |faltando: 000 |  00:00:00")
+        
+            self._desmarcar(listBT=[self.btIniciar, self.btLimpar])
+            
+            if hasattr(self, 'ModuloBot'):
+                del self.ModuloBot
+                
+            self.continuar.configure(state='disabled')
+            self.cancelar.configure(state='disabled')
+            self.btAbrir.configure(state='normal')
+        except Exception as e:
+            validador.registrar_log(e, "_limpar_tela")
     def _desmarcar(self, listBT= list):
         try:
             self._LimparWidget(listBT= listBT, tesk= 'disabled')
@@ -57,8 +73,9 @@ class __auxiliares:
             validador.registrar_log(e, "_desmarcar")  
     def _puxarVlr(self, dictRota):
         try: 
+            caminho = False
             for chave, dados in dictRota.items():
-                if dados.get('VARIAVEL') == "_OutPut_":
+                if dados.get('VARIAVEL') == "_Saidas_":
                     caminho = Path(dados.get('PATH', ''))
                     break
             if not caminho:
@@ -75,7 +92,6 @@ class __auxiliares:
             return entrada, saida
         except Exception as e:
             validador.registrar_log(e, "_puxarVlr")  
-
     def _AbrirFile(self):
         try:
             if os.path.exists(self.entrada):
@@ -123,7 +139,7 @@ class __auxiliares:
                 return
 
             def iniciar_execucao_background():
-                self.current_bot_runner = ExecuteBot(
+                self.ModuloBot = ExecuteBot(
                     UI= self,
                     chave=chave_selecionada, 
                     rotas=rotas,
@@ -131,7 +147,7 @@ class __auxiliares:
                     saida=self.saida
                 )
             
-                valor_pipeline = self.current_bot_runner.carregar_modulo()
+                valor_pipeline = self.ModuloBot.carregar_modulo()
 
                 if valor_pipeline is not None:
                     self.continuar.configure(state= 'normal')
@@ -146,45 +162,67 @@ class __auxiliares:
         except Exception as e:
             validador.registrar_log(e, "_IniciosBot")  
         pass
+    
     def ClicarSimulador(self, contador: ctk.CTkLabel):
         try:
-            if hasattr(self, 'current_bot_runner') and self.current_bot_runner:
+            if hasattr(self, 'ModuloBot') and self.ModuloBot:
+                self.cancel_event = threading.Event()
+                self.cancel_event.clear()
+                self.after_id = None
+
                 def fazer_contagem(segundos_restantes):
+                    if self.cancel_event.is_set():
+                        return
+                    
                     if segundos_restantes > 0:
                         contador.configure(text=f"Iniciando em {segundos_restantes}...")          
-                        contador.after(1000, lambda: fazer_contagem(segundos_restantes - 1))
+                        self.after_id = contador.after(1000, lambda: fazer_contagem(segundos_restantes - 1))
                     else:
+                        if self.cancel_event.is_set():
+                            return
+                            
                         contador.configure(text="Executando Simulador...")
-                        import threading
                         
                         def rodar_thread_simulador():
-                            self.current_bot_runner.executar_simulador()
-                            contador.after(0, lambda: [
-                                self.continuar.configure(state='disabled'),
-                                self.cancelar.configure(state='disabled'),
-                                contador.configure(text="Simulação concluída!"),
-                                self.btAbrir.configure(state='normal')
-                            ])
-                        thread = threading.Thread(target=rodar_thread_simulador, daemon=True)
-                        thread.start()
-
+                            self.ModuloBot.executar_simulador()
+                            
+                            if not self.cancel_event.is_set():
+                                contador.after(0, lambda: [
+                                    self.continuar.configure(state='disabled'),
+                                    self.cancelar.configure(state='disabled'),
+                                    contador.configure(text="Simulação concluída!"),
+                                    self.btAbrir.configure(state='normal')
+                                ])
+                        self.thread_simulador = threading.Thread(target=rodar_thread_simulador, daemon=True)
+                        self.thread_simulador.start()
                 fazer_contagem(5)
             else:
                 msgbox.showwarning("Aviso", "Nenhum bot carregado para simular.")        
         except Exception as e:
             validador.registrar_log(e, "ao_clicar_em_simular")  
-        pass
+
     def _cancelar_execucao(self):
-        if hasattr(self, 'current_bot_runner'):
-            del self.current_bot_runner
+        self.ModuloBot.Controladora(True)
+        if hasattr(self, 'cancel_event'):
+            self.cancel_event.set()
+        if hasattr(self, 'after_id') and self.after_id:
+            try:
+                self.cancelar.after_cancel(self.after_id)
+            except Exception:
+                pass
+
+        if hasattr(self, 'ModuloBot'):
+            del self.ModuloBot
         
         self.continuar.configure(state='disabled')
         self.cancelar.configure(state='disabled')
-        self.btAbrir.configure(state= 'normal')
+        self.btAbrir.configure(state='normal')
+        
         msgbox.showinfo(
             "Operação Cancelada",
             "A execução atual foi interrompida com sucesso a pedido do usuário."
         )
+    pass
 class BotsUI(__auxiliares):
     def __init__(self):
         self.familia = "Consolas"
@@ -261,7 +299,7 @@ class BotsUI(__auxiliares):
                     border_color= self.preto,
                     border_width_unchecked=3,
 
-                    command= lambda: self._LimparWidget(listBT= [self.btIniciar, self.btParar], tesk= 'normal'),
+                    command= lambda: self._LimparWidget(listBT= [self.btIniciar, self.btLimpar], tesk= 'normal'),
                 )
                 dicionario[registro]['checkbox'] = boxModulo
         pass
@@ -287,16 +325,16 @@ class BotsUI(__auxiliares):
             border_width= 3,
             command= lambda: self._IniciosBot(mapa= self.MapaBox, rotas= self.dictRotas, root= tela)
         )
-        self.btParar = ctk.CTkButton(
+        self.btLimpar = ctk.CTkButton(
             self.Painel,
-            text= "Parar",
+            text= "Limpar",
             state= 'disabled',
             font= (self.familia, 14, "bold"),
             text_color= self.preto,
             text_color_disabled= self.vermelho,
             fg_color= self.branco,
             border_width= 3,
-            # command= self.FUNC_demandas
+            command= self._limpar_tela
         )
         self.desmarcar = ctk.CTkButton(
             self.Painel,
@@ -306,7 +344,7 @@ class BotsUI(__auxiliares):
             text_color_disabled= self.vermelho,
             fg_color= self.branco,
             border_width= 3,
-            command= lambda: self._desmarcar(listBT= [self.btIniciar, self.btParar])
+            command= lambda: self._desmarcar(listBT= [self.btIniciar, self.btLimpar])
         )
         self.continuar = ctk.CTkButton(
             self.Retorno,
@@ -340,7 +378,7 @@ class BotsUI(__auxiliares):
 
         self.btAbrir.place_configure(relx= 0.02, rely= 0.70, relheight= 0.20, relwidth= 0.30)
         self.btIniciar.place_configure(relx= 0.34, rely= 0.70, relheight= 0.20, relwidth= 0.20)
-        self.btParar.place_configure(relx= 0.56, rely= 0.70, relheight= 0.20, relwidth= 0.20)
+        self.btLimpar.place_configure(relx= 0.56, rely= 0.70, relheight= 0.20, relwidth= 0.20)
         self.desmarcar.place_configure(relx= 0.78, rely= 0.70, relheight= 0.20, relwidth= 0.20)
 
         self.continuar.place_configure(relx=0.275, rely=0.70, relheight=0.20, relwidth=0.20)
