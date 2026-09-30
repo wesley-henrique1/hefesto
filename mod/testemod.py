@@ -21,24 +21,20 @@ class TesteMod(auxiliares):
 
     def pipeline(self):
         try:
-            dataDados = pd.read_excel(str(self.list_path[0]), usecols= ['CODPROD', 'DESCRICAO', 'RUA', 'PREDIO'])
+            pass
         except Exception as e:
-            # self.validador.registrar_log(e, "Extract")
             print("Extract", e)
             return False
         try:
-            filtro = dataDados.loc[dataDados['RUA'] == 1]
-            filtro = filtro.loc[filtro['PREDIO'].between(1, 10)]
+            pass
         except Exception as e:
-            # self.validador.registrar_log(e, "Transform")
             print("Transform", e)
 
             return False
         try:
-            filtro.to_excel(self.caminho, sheet_name= "Cadastro", index= False)
+            pass
             return True
         except Exception as e:
-            # self.validador.registrar_log(e, "Load")
             print("Load", e)
             return False
         
@@ -59,7 +55,6 @@ class TesteMod(auxiliares):
                 lista_de_logs.append(dic_log)
             return lista_de_logs
         except Exception as e:
-            # self.validador.registrar_log(e, "CARREGAMENTO")
             print("CARREGAMENTO", e)
             return False
     def Saida(self):

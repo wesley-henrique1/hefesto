@@ -43,16 +43,15 @@ class TesteBot:
         self._parar_execucao = valor
     def _pipeline(self):
         try:
-            DataDados = pd.read_excel(self.Entrada, sheet_name= "BOT3707")
+            pass
         except Exception as e:
             print("extrair", e)
         try:
-            DataDados['CODPROD'] = pd.to_numeric(DataDados['CODPROD'], errors= 'raise').astype(int)
-            DataDados['DESTINO'] = pd.to_numeric(DataDados['DESTINO'], errors= 'raise').astype(int)
+            pass
         except Exception as e:
             print("Tratamento", e)
         try:
-            return DataDados
+            pass
         except Exception as e:
             print("Carga", e)
     def _Simulador(self, df: pd.DataFrame, cancel_event=None):

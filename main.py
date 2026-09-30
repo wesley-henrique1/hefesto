@@ -88,7 +88,7 @@ class Main(__auxiliares):
         self._Imagens  = settings._Imagens()
 
         root = ctk.CTk()
-        root.title("Gerenciador_8000")
+        root.title("Hefesto")
         root.geometry("700x500")
         root.configure(fg_color=self.marromClaro)
         root.iconbitmap(self._Icone.perfil)
