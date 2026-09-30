@@ -5,10 +5,10 @@ from tkinter import messagebox as msgbox
 from pathlib import Path
 import importlib.util
 
-import os
 validador = ModularErros(fonte= "BOT - EXECUTOR")
 class ExecuteBot:
     def __init__(self, UI, chave: str, rotas: dict, entrada: Path, saida: Path):
+        
         self.ancoraUI = UI
         self.rotas = rotas
         self.entrada = str(entrada)

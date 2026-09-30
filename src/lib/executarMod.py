@@ -112,8 +112,10 @@ class executeMOD:
                     except Exception as e:
                         validador.registrar_log(e, f"Ponte -> {nomeModulo}")
 
+
             self.__MontarCarregamento(log= self.listLog)
-            self.ancoraSaida.outputUI(self.listSaida)
+            if self.listSaida:
+                self.ancoraSaida.outputUI(self.listSaida)
         except Exception as e:
             validador.registrar_log(e, "Carregamento modulo")
             return None

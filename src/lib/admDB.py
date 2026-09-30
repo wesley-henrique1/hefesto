@@ -171,65 +171,6 @@ class path_DB:
         query = f"INSERT INTO {self.NomeTabela} (CHAVES, VARIAVEL, PATH, ESTADO) VALUES (?, ?, ?, ?)"  
         self.__conectar(sql= query, parametros= valor)      
         pass
-class Task_DB:
-    def __init__(self):
-        self.DataBase = _DataBase.taskDb
-        self.NomeTabela = "taskTB"
-        pass
-
-    def __CriarTabela(self):
-        query = f"""
-        CREATE TABLE IF NOT EXISTS {self.NomeTabela} (
-            CHAVES VARCHAR(8) PRIMARY KEY,
-            NOME TEXT NOT NULL,
-            DIAS TEXT NOT NULL,
-            ESTADO VARCHAR(1) NOT NULL
-        );
-        """
-        # TASK001 - Relatorio Corte - [2,3,4,5,6,7] - true
-        return query
-    def __conectar(self, sql: str, parametros: tuple = (), retornar_linha: bool= False):
-        with sqlite3.connect(self.DataBase) as conn:
-            cursor = conn.cursor()
-
-            cursor.execute(self.__CriarTabela())
-            cursor.execute(sql, parametros)
-            if retornar_linha:
-                Valr = cursor.fetchall()
-                return Valr
-            foi_alterado = cursor.rowcount > 0
-            return foi_alterado
-    def BuscarVlr(self):
-        dicionario = {}
-
-        query = f"""
-        SELECT *
-        FROM {self.NomeTabela}"""
-        dados = self.__conectar(sql= query, retornar_linha= True)
-
-        for linha in dados:
-            dicionario[linha[0]] = {
-                "NOME": linha[1],
-                "DIAS": linha[2],
-                "ESTADO": linha[3],
-            }
-        return dicionario
-    def DeletarVlr(self, valor: tuple):
-        query = f"DELETE FROM {self.NomeTabela} WHERE CHAVES = ?"
-        sucesso = self.__conectar(sql= query, parametros= valor)
-        return sucesso
-    def EditarVlr(self, valor: tuple):
-        query = f"""
-            UPDATE {self.NomeTabela} 
-            SET NOME = ?, DIAS= ?, ESTADO= ?
-            WHERE CHAVES =?
-        """
-        self.__conectar(sql= query, parametros= valor)
-        pass
-    def InserirVle(self, valor: tuple):
-        query = f"INSERT INTO {self.NomeTabela} (CHAVES, NOME, DIAS, ESTADO) VALUES (?, ?, ?, ?)"  
-        self.__conectar(sql= query, parametros= valor)      
-        pass
 class CRUD_DB:
     def __init__(self, base= Literal["modulos", "bots"]):
         match base:

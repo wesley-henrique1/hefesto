@@ -1,15 +1,18 @@
 from pathlib import Path
+import sys
+import os
 
 class _Caminho:
-    __diretorioAtual = Path(__file__).parent
-    PastaBot = __diretorioAtual.parent.parent / "bot"
-    PastaMod = __diretorioAtual.parent.parent / "mod"
+    if getattr(sys, 'frozen', False):
+        __diretorioBase = Path(sys.executable).parent
+    else:
+        __diretorioBase = Path(__file__).parent.parent.parent
 
-    assets = __diretorioAtual.parent / "assets"
-    bancoDados = __diretorioAtual.parent / "db"
+    PastaBot = __diretorioBase / "bot"
+    PastaMod = __diretorioBase / "mod"
 
-    # lib = _Caminho.diretorioAtual / "lib"
-    # views = _Caminho.diretorioAtual / "views"
+    assets = __diretorioBase / "src" / "assets"
+    bancoDados = __diretorioBase / "src" / "db"
 
 class _Icone(_Caminho):
     icones = _Caminho.assets / "icon"

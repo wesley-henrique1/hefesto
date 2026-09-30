@@ -146,7 +146,6 @@ class __auxiliares:
                     entrada=self.entrada, 
                     saida=self.saida
                 )
-            
                 valor_pipeline = self.ModuloBot.carregar_modulo()
 
                 if valor_pipeline is not None:
@@ -185,7 +184,6 @@ class __auxiliares:
                         
                         def rodar_thread_simulador():
                             self.ModuloBot.executar_simulador()
-                            
                             if not self.cancel_event.is_set():
                                 contador.after(0, lambda: [
                                     self.continuar.configure(state='disabled'),
@@ -246,8 +244,6 @@ class BotsUI(__auxiliares):
         self.__Componentes(root)
         self.__clicaveis(root)
         self.__localizador()
-
-        root.mainloop()
         pass
 
     def __Componentes(self, tela):

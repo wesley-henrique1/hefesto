@@ -4,7 +4,7 @@ from pathlib import Path
 from tkinter import messagebox as msg
 from typing import Literal
 
-from src.lib.admDB import CRUD_DB, Task_DB, path_DB
+from src.lib.admDB import CRUD_DB, path_DB
 from src.lib.modErros import ModularErros
 
 validador = ModularErros(fonte= "GUI - Modulos")
@@ -104,7 +104,6 @@ class CRUD_(auxiliares):
 
         self.base = base
         self.ancoraDB = CRUD_DB(base= base)
-        self.ancoraTesk = Task_DB()
         self.ancoraRota = path_DB()
         
         self.meu_estado_var = ctk.StringVar(value= "0")
@@ -237,9 +236,7 @@ class CRUD_(auxiliares):
                 return
             match contrato:
                 case "Apagar":
-                    if self.base == 'task':
-                        valor = self.ancoraTesk.DeletarVlr((chave,))
-                    elif self.base == 'rota':
+                    if self.base == 'rota':
                         valor = self.ancoraRota.DeletarVlr((chave,))
                     else:
                         valor = self.ancoraDB.DeletarVlr((chave,))
@@ -248,29 +245,7 @@ class CRUD_(auxiliares):
                     else:
                         msg.showerror("Erro", f"Registro '{chave}' não foi encontrado na base de dados.")
                 case "cadastrar" | "editar":
-                    if self.base == 'task':
-                        self.entryClasse.configure(state="disabled")
-
-                        nome = self.entryDesc.get().strip()
-                        estado = self.boxEstado.get()
-
-                        texto_usuario = self.entryModulo.get().strip()
-                        dias_lista = [int(dia.strip()) for dia in texto_usuario.split(",") if dia.strip()]
-                        dias = json.dumps(dias_lista)
-
-                        if not nome or not dias:
-                            self._TextCampo()
-                            return
-                        
-                        if contrato == "cadastrar":
-                            self.ancoraTesk.InserirVle((chave, nome, dias, estado,))
-                            msg.showinfo("FEITO", f"Registro '{chave}' cadastrado com sucesso!")
-                        
-                        elif contrato == "editar":
-                            self.ancoraTesk.EditarVlr((nome, dias, estado, chave,))
-                            msg.showinfo("FEITO", f"Registro '{chave}' atualizado com sucesso!")
-                        pass
-                    elif self.base == 'rota':
+                    if self.base == 'rota':
                         self.entryClasse.configure(state="disabled")
                         caminho_limpo = self.entryDesc.get().strip().strip('"\'')
                         path = Path(caminho_limpo)
@@ -316,25 +291,7 @@ class CRUD_(auxiliares):
         self._destroyer(telas)
         telas.configure(fg_color= self.marromClaro)
         try:
-            if self.base == 'task':
-                mapa = self.ancoraTesk.BuscarVlr()
-                on = []
-                off = []
-                coluna = f"{'CHAVE':^7} | {'Tarefa':^30} | {'dias':^14} | {'Estado':^6}\n"
-                separador = "-" * 75
-                tabela = coluna + separador + "\n"
-                if mapa:
-                    for chave in mapa.keys():
-                        linha = f"{chave:<7} | {mapa[chave]['NOME']:<30} | {mapa[chave]['DIAS']:<14} | {mapa[chave]['ESTADO']:^6}\n"
-                        if mapa[chave]['ESTADO'] == '1':
-                            on.append(mapa[chave]['ESTADO'])
-                        elif mapa[chave]['ESTADO'] == '0':
-                            off.append(mapa[chave]['ESTADO'])
-                        tabela += linha
-                else:
-                    linha = f"{'TASK000':<7} | {'BASE VAZIA':<30} | {'SEM REGISTRO':<14}| {'-':^6}\n"
-                    tabela += linha 
-            elif self.base == 'rota':
+            if self.base == 'rota':
                 mapa = self.ancoraRota.BuscarVlr()
                 on = []
                 off = []
@@ -407,9 +364,7 @@ class CRUD_(auxiliares):
     def Editar(self, telas: ctk.CTkLabel):
         try:
             self.etapa = "editar"
-            if self.base == 'task':
-                mapa = self.ancoraTesk.BuscarVlr()
-            elif self.base == 'rota':
+            if self.base == 'rota':
                 mapa = self.ancoraRota.BuscarVlr()
             else:
                 mapa = self.ancoraDB.BuscarVlr()
@@ -422,9 +377,7 @@ class CRUD_(auxiliares):
     def Cadastrar(self, telas: ctk.CTkLabel):
         try:
             self.etapa = "cadastrar"
-            if self.base == 'task':
-                mapa = self.ancoraTesk.BuscarVlr()
-            elif self.base == 'rota':
+            if self.base == 'rota':
                 mapa = self.ancoraRota.BuscarVlr()
             else:
                 mapa = self.ancoraDB.BuscarVlr()
@@ -462,9 +415,7 @@ class CRUD_(auxiliares):
     def Apagar(self, telas: ctk.CTkLabel):
         try:
             self.etapa = "Apagar"
-            if self.base == 'task':
-                mapa = self.ancoraTesk.BuscarVlr()
-            elif self.base == 'rota':
+            if self.base == 'rota':
                 mapa = self.ancoraRota.BuscarVlr()
             else:
                 mapa = self.ancoraDB.BuscarVlr()

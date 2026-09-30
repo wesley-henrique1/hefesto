@@ -108,6 +108,9 @@ class Menu(auxiliares):
         root.configure(fg_color=self.marromClaro)
         root.iconbitmap(_Icone.engrenagem)
         root.resizable(False, False)
+        self._janela_toplevel = root
+        root.protocol("WM_DELETE_WINDOW", self._fechar)
+
         self.radioVar = ctk.StringVar(value= "COMANDOS")
         
         self.modulo = CRUD_(base= "modulos")
@@ -119,13 +122,14 @@ class Menu(auxiliares):
         self.__BoxFlegs()
 
         self.buttonList = [self.btApagar, self.btCadastrar, self.btEditar, self.btconsulta]
-        self.boxList = [self.boxModulo, self.boxBots, self.boxTarefas]
+        self.boxList = [self.boxModulo, self.boxBots]
 
         self.__localizador()
-
-        root.mainloop()
         pass
-
+    def _fechar(self):
+        self._janela_toplevel.destroy()
+    def obter_janela(self):
+        return self._janela_toplevel
     def __componentes(self, tela):
         self.telasFlegs = ctk.CTkFrame(
             tela,
@@ -220,17 +224,6 @@ class Menu(auxiliares):
             border_color= self.preto,
             command= lambda: self._LimparWidget(listBT= self.buttonList, tesk= 'normal'),
         )
-        self.boxTarefas = ctk.CTkRadioButton(
-            self.telasFlegs,
-            text= "tarefas",
-            value= "TESK",
-            variable= self.radioVar,
-            text_color= self.preto,
-            hover_color= self.vermelho,
-            fg_color= self.vermelho,
-            border_color= self.preto,
-            command= lambda: self._LimparWidget(listBT= self.buttonList, tesk= 'normal'),
-        )
         self.boxRotasdf = ctk.CTkRadioButton(
             self.telasFlegs,
             text= "Rotas dados",
@@ -257,7 +250,6 @@ class Menu(auxiliares):
         # Localização das caixa de marcação
         self.boxModulo.place_configure(relx= 0.02, rely= 0.50, relwidth= 0.22, relheight= 0.20)
         self.boxBots.place_configure(relx= 0.27, rely= 0.50, relwidth= 0.22, relheight= 0.20)
-        self.boxTarefas.place_configure(relx= 0.52, rely= 0.50, relwidth= 0.22, relheight= 0.20)
         self.boxRotasdf.place_configure(relx= 0.77, rely= 0.50, relwidth= 0.22, relheight= 0.20)
         self.btDesmarcar.place_configure(relx= 0.01, rely= 0.75, relwidth= 0.22, relheight= 0.20)
         pass

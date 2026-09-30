@@ -39,11 +39,39 @@ class __auxiliares:
 
     def FUNC_bot(self):
         botGUI.BotsUI()
-    def FUNC_demandas(self):
-        print("demandas 3... 2.. 1...")
     def FUNC_config(self):
-        menu.Menu()
+        raiz_atual = self.btConfig.winfo_toplevel()
+        janela_menu = menu.Menu()
+        raiz_atual.wait_window(janela_menu.obter_janela())
+        
+        for widget in raiz_atual.winfo_children():
+            widget.destroy()
+            
+        self.dictRotas = admDB.path_DB().BuscarVlr()
+        dicNome = admDB.CRUD_DB(base= "modulos").BuscarVlr()
 
+        self.MapaBox = []
+        for chave in dicNome.keys():
+            if dicNome[chave]['_estado'] == '0':
+                    continue
+            var_estado = ctk.StringVar(value="0")
+            self.MapaBox.append(
+                {chave:{
+                    "checkbox": int, 
+                    "__estado__": var_estado, 
+                    '_Nomenclatura': dicNome[chave]['_Nomenclatura'],
+                    "_classes": dicNome[chave]['_classes'], 
+                    "_Modulo": dicNome[chave]['_Modulo']
+                    }
+                }
+            )
+
+        self._Componentes(raiz_atual)
+        self._TelasImgs()
+        self._clicaveis()
+        self._flegsMOD()
+        self._localizador()
+        
     def AbrirGIT(self, event=None):
         webbrowser.open("https://github.com/wesley-henrique1")
 
@@ -87,15 +115,16 @@ class Main(__auxiliares):
             )
         pass
 
-        self.__Componentes(root)
-        self.__TelasImgs()
-        self.__clicaveis()
-        self.__flegsMOD()
-        self.__localizador()
+        self._Componentes(root)
+        self._TelasImgs()
+        self._clicaveis()
+        self._flegsMOD()
+        self._localizador()
+
         root.mainloop()
         pass
 
-    def __Componentes(self, tela):
+    def _Componentes(self, tela):
         self.pipelines = ctk.CTkFrame(
             tela,
             fg_color= self.branco,
@@ -129,7 +158,7 @@ class Main(__auxiliares):
             border_color= self.preto,
         )
         pass
-    def __TelasImgs(self):
+    def _TelasImgs(self):
         self.logoPy = ctk.CTkImage(
             light_image= Image.open(self._Imagens .logoPy),
             dark_image= Image.open(self._Imagens .logoPy),
@@ -164,7 +193,7 @@ class Main(__auxiliares):
         self.labelPerfil.configure(cursor="hand2")
 
         pass
-    def __clicaveis(self):
+    def _clicaveis(self):
         tela = self.painel
 
         self.btIniciar = ctk.CTkButton(
@@ -194,15 +223,6 @@ class Main(__auxiliares):
             border_width= 3,
             command= self.FUNC_bot
         )
-        self.btDemandas = ctk.CTkButton(
-            tela,
-            text= "Tarefas dia",
-            font= (self.familia, 14, "bold"),
-            text_color= self.preto,
-            fg_color= self.branco,
-            border_width= 3,
-            command= self.FUNC_demandas
-        )
         self.btConfig = ctk.CTkButton(
             tela,
             text= "Configuração",
@@ -214,7 +234,7 @@ class Main(__auxiliares):
         )
         pass
 
-    def __flegsMOD(self):
+    def _flegsMOD(self):
         for valor in self.MapaBox:
             for registro in valor.keys():
                 boxNome = ctk.CTkCheckBox(
@@ -231,7 +251,7 @@ class Main(__auxiliares):
                 )
                 valor[registro]['checkbox'] = boxNome
         pass
-    def __localizador(self):
+    def _localizador(self):
         self.pipelines.place(rely=0.02, relx=0.01, relwidth=0.77, relheight=0.40)
         self.contador.place(rely=0.44, relx=0.01, relwidth=0.77, relheight=0.10)
         self.logArquivo.place(rely=0.56, relx=0.01, relwidth=0.77, relheight=0.43)
@@ -260,7 +280,6 @@ class Main(__auxiliares):
         self.btIniciar.place(rely=0.02, relx=0.04, relwidth=0.92, relheight=0.08)
         self.btLimpar.place(rely=0.11, relx=0.04, relwidth=0.92, relheight=0.08)
         self.btBots.place(rely=0.20, relx=0.04, relwidth=0.92, relheight=0.08)
-        self.btDemandas.place(rely=0.29, relx=0.04, relwidth=0.92, relheight=0.08)        
         self.btConfig.place(rely=0.38, relx=0.04, relwidth=0.92, relheight=0.08)
 
         self.labelLogo.place(rely=0.48, relx=0.02, relwidth=0.96, relheight=0.25)
