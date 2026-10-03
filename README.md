@@ -40,108 +40,78 @@ Centralizar e gerenciar a execução de automações e pipelines de dados em um 
 
 ## 📖 Manual de Uso
 Para que o **Hefesto** funcione corretamente e consiga localizar todos os componentes, é necessário cadastrar previamente três ferramentas essenciais: **módulos**, **bots** e **rotas**. Cada uma delas segue regras de configuração específicas exigidas pelo sistema.
+<div align="center">
 
-<table>
-<tr>
-<td align="left" valign="middle">
   <h3>🖥️ Visão Geral da Interface Principal</h3>
   <br>
-  <ul>
-    <li><b>1. Painel de Pipelines:</b> Centraliza as marcações de seleção para definir quais módulos serão executados ao acionar o botão de início.</li>
-    <li><b>2. Painel de Log/Exibição:</b> Área destinada a exibir as informações e o histórico de processamento dos dados utilizados nos pipelines.</li>
-    <li><b>3. Barra de Progresso:</b> Monitora em tempo real o andamento da execução atual, exibindo o módulo ativo e o tempo decorrido de atividade.</li>
-    <li><b>4. Painel de Controle (Botões):</b>
-      <ul>
-        <li><b>Iniciar:</b> Executa todos os pipelines selecionados.</li>
-        <li><b>Limpar:</b> Reseta a janela e limpa as informações da tela.</li>
-        <li><b>BOTs:</b> Abre a interface dedicada às automações; para essa interface funcionar, é preciso ter uma pasta de saída já cadastrada no banco de dados com o nome de variável _Saidas_.</li>
-        <li><b>Configuração:</b> Abre o painel de gerenciamento completo para consultar, cadastrar, editar e apagar rotas, módulos e bots.</li>
-      </ul>
-    </li>
-  </ul>
-</td>
-<td align="center" valign="middle" width="500">
-  <img src="src/assets/img/AP_PRINCIPAL.png" width="500" alt="Interface Principal do Hefesto">
-</td>
-</tr>
-</table>
+
+  <!-- Imagem da Interface Centralizada -->
+  <img src="src/assets/img/AP_PRINCIPAL.png" width="100%" max-width="500px" alt="Interface Principal do Hefesto">
+
+</div>
+
+<br>
+
+* **1. Painel de Pipelines:** Centraliza as marcações de seleção para definir quais módulos serão executados ao acionar o botão de início.
+* **2. Painel de Log/Exibição:** Área destinada a exibir as informações e o histórico de processamento dos dados utilizados nos pipelines.
+* **3. Barra de Progresso:** Monitora em tempo real o andamento da execução atual, exibindo o módulo ativo e o tempo decorrido de atividade.
+* **4. Painel de Controle (Botões):**
+  * **Iniciar:** Executa todos os pipelines selecionados.
+  * **Limpar:** Reseta a janela e limpa as informações da tela.
+  * **BOTs:** Abre a interface dedicada às automações; para essa interface funcionar, é preciso ter uma pasta de saída já cadastrada no banco de dados com o nome de variável `_Saidas_`.
+  * **Configuração:** Abre o painel de gerenciamento completo para consultar, cadastrar, editar e apagar rotas, módulos e bots.
+
 <hr>
 
-<table>
-<tr>
-<td align="left" valign="middle">
+<div align="center">
   <h3>⚙️ Painel de Configuração</h3>
   <br>
-  <ul>
-    <li><b>1. Área de Exibição e Alteração (CRUD):</b> Espaço dinâmico inferior onde são carregados os formulários, tabelas e campos para gerenciar os registros selecionados.</li>
-    <li><b>2. Painel de Controle e Filtros:</b>
-      <ul>
-        <li><b>Botões de Ação (Consultar, Editar, Cadastrar, Apagar):</b> Define qual operação do CRUD será executada no sistema.</li>
-        <li><b>Seletores de Entidade (Modulos, bots, Rotas dados):</b> Rádio buttons para escolher qual base de dados ou módulo será o alvo da operação.</li>
-        <li><b>Desmarcar:</b> Limpa os campos da tela de alteração e reseta as seleções de rádio.</li>
-      </ul>
-    </li>
-  </ul>
-</td>
-<td align="center" valign="middle" width="500">
-  <img src="src/assets/img/AP_CONFIGURAR.png" width="500" alt="Interface de Configuração">
-</td>
-</tr>
-</table>
-<hr>
+  <img src="src/assets/img/AP_CONFIGURAR.png" width="100%" max-width="500px" alt="Interface de Configuração">
+</div>
 
-<table>
-<tr>
-<td align="left" valign="middle">
+<br>
+
+* **1. Área de Exibição e Alteração (CRUD):** Espaço dinâmico inferior onde são carregados os formulários, tabelas e campos para gerenciar os registros selecionados.
+* **2. Painel de Controle e Filtros:**
+  * **Botões de Ação (Consultar, Editar, Cadastrar, Apagar):** Define qual operação do CRUD será executada no sistema.
+  * **Seletores de Entidade (Modulos, bots, Rotas dados):** Rádio buttons para escolher qual base de dados ou módulo será o alvo da operação.
+  * **Desmarcar:** Limpa os campos da tela de alteração e reseta as seleções de rádio.\
+
+<hr>
+<div align="center">
   <h3>⚙️ Configuração: Ação</h3>
   <br>
-  <ul>
-    <li><b>1. Painel de Entradas:</b> Centraliza os campos de texto e caixas de seleção dinâmicas para receber ou exibir os valores nas modalidades de <b>editar, cadastrar e apagar</b>.</li>
-    <li><b>2. Painel de Ações (Botões):</b>
-      <ul>
-        <li><b>Pesquisar:</b> Busca no banco de dados os valores correspondentes à chave (código), preenchendo os demais campos automaticamente (fica desabilitado no modo de cadastro).</li>
-        <li><b>Aplicar:</b> Envia e salva as informações processadas no banco de dados.</li>
-        <li><b>Limpar:</b> Reseta a janela de ação e limpa todas as informações preenchidas na tela.</li>
-      </ul>
-    </li>
-  </ul>
-</td>
-<td align="center" valign="middle" width="500">
-  <img src="src/assets/img/AP_CONFIG.png" width="500" alt="Painel de Configuração e Ação">
-</td>
-</tr>
-</table>
+  <img src="src/assets/img/AP_CONFIG.png" width="100%" max-width="500px" alt="Painel de Configuração e Ação">
+</div>
+
+<br>
+
+* **1. Painel de Entradas:** Centraliza os campos de texto e caixas de seleção dinâmicas para receber ou exibir os valores nas modalidades de **editar, cadastrar e apagar**.
+* **2. Painel de Ações (Botões):**
+  * **Pesquisar:** Busca no banco de dados os valores correspondentes à chave (código), preenchendo os demais campos automaticamente (fica desabilitado no modo de cadastro).
+  * **Aplicar:** Envia e salva as informações processadas no banco de dados.
+  * **Limpar:** Reseta a janela de ação e limpa todas as informações preenchidas na tela.
+
 <hr>
 
-<table>
-<tr>
-<td align="left" valign="middle">
+<div align="center">
   <h3>🤖 Painel de Automação (BOT)</h3>
   <br>
-  <ul>
-    <li><b>1. Painel de Seleção:</b> Centraliza as marcações de opção para definir qual bot será executado ao acionar o botão de início (permitindo a seleção de apenas um por vez).</li>
-    <li><b>2. Painel de Controle (Ações):</b>
-      <ul>
-        <li><b>Abrir Arquivo:</b> Abre a planilha Excel base onde o bot coletará os dados de entrada necessários para a execução. É fundamental executá-lo antes de iniciar o bot.</li>
-        <li><b>Iniciar:</b> Executa o bot selecionado na lista.</li>
-        <li><b>Limpar:</b> Reseta a janela e limpa as informações exibidas na tela.</li>
-        <li><b>Desmarcar:</b> Limpa as seleções (flags) ativas.</li>
-      </ul>
-    </li>
-    <li><b>3. Painel de Progresso:</b> Monitora em tempo real o andamento da automação, exibindo o total de valores a serem processados, o progresso atual do pipeline do bot e o tempo decorrido de atividade.</li>
-    <li><b>4. Painel de Controle (Simulador):</b>
-      <ul>
-        <li><b>Continuar:</b> Liberado automaticamente após o término do pipeline, permitindo iniciar a etapa do simulador ao ser clicado.</li>
-        <li><b>Cancelar:</b> Interrompe e cancela a execução atual do processo.</li>
-      </ul>
-    </li>
-  </ul>
-</td>
-<td align="center" valign="middle" width="500">
-  <img src="src/assets/img/AP_BOT.png" width="500" alt="Interface de Automação do Hefesto">
-</td>
-</tr>
-</table>
+  <img src="src/assets/img/AP_BOT.png" width="100%" max-width="500px" alt="Interface de Automação do Hefesto">
+</div>
+
+<br>
+
+* **1. Painel de Seleção:** Centraliza as marcações de opção para definir qual bot será executado ao acionar o botão de início (permitindo a seleção de apenas um por vez).
+* **2. Painel de Controle (Ações):**
+  * **Abrir Arquivo:** Abre a planilha Excel base onde o bot coletará os dados de entrada necessários para a execução. É fundamental executá-lo antes de iniciar o bot.
+  * **Iniciar:** Executa o bot selecionado na lista.
+  * **Limpar:** Reseta a janela e limpa as informações exibidas na tela.
+  * **Desmarcar:** Limpa as seleções (flags) ativas.
+* **3. Painel de Progresso:** Monitora em tempo real o andamento da automação, exibindo o total de valores a serem processados, o progresso atual do pipeline do bot e o tempo decorrido de atividade.
+* **4. Painel de Controle (Simulador):**
+  * **Continuar:** Liberado automaticamente após o término do pipeline, permitindo iniciar a etapa do simulador ao ser clicado.
+  * **Cancelar:** Interrompe e cancela a execução atual do processo.
 
 <hr>
 <br><br>
