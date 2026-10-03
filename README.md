@@ -1,16 +1,326 @@
-# hefesto
-projeto destinado a centralizar os script de automação 
+
+<table align="center">
+<tr>
+<!-- Lado Esquerdo: Frase, Links e Badges -->
+<td align="center" valign="middle">
+    <h3 align="center">GERENCIAMENTO DE AUTOMAÇÃO 🦥</h3>
+    <h3>"Deixe o robô trabalhar enquanto você toma um café."</h3>
+    <h2>
+        <a href="https://www.linkedin.com/in/wesley-henrique22" target="_blank" rel="noopener noreferrer">LinkedIn</a> |
+        <a href="https://github.com/wesley-henrique1" target="_blank" rel="noopener noreferrer">GitHub</a> | 
+        <a href="https://www.bing.com/search?q=aqui%20estou%20devendo%20link&qs=n&form=QBRE&sp=-1&ghc=1&lq=0&pq=aqui%20estou%20devendo%20link&sc=12-23&sk=&cvid=989C403393164B4298A65FE780076F4B" target="_blank" rel="noopener noreferrer">Instagram</a>
+    </h2>
+    <p align="center">
+        <img src="https://img.shields.io/badge/Python-3.13-blue?style=flat&logo=python" alt="Python">
+        <img src="https://img.shields.io/badge/Data-Pandas-150458?style=flat&logo=pandas" alt="Pandas">
+        <img src="https://img.shields.io/badge/View-Power_BI-F2C811?style=flat&logo=powerbi" alt="PowerBI">
+        <img src="https://img.shields.io/badge/Status-Em_Produção-green?style=flat" alt="Status">
+    </p>
+</td>
+<!-- Lado Direito: Imagem Principal -->
+<td align="center" valign="middle" width="300">
+    <img src="src/assets/img/perfil.png" width="280" alt="Flash - Mascot">
+</td>
+</tr>
+</table>
+
+<hr>
+
+# 🎯 Objetivo do Projeto
+
+Centralizar e gerenciar a execução de automações e pipelines de dados em um painel único. A plataforma elimina a execução manual de scripts `.py` no terminal/IDE, organizando as operações através de uma interface gráfica amigável.
+
+## 📑 Índice
+1. [Manual de Uso](#-manual-de-uso)
+2. [Arquitetura dos Módulos Bots (RPA)](#️-arquitetura-dos-módulos-bots-rpa)
+3. [Arquitetura dos Módulos Pipelines](#️-arquitetura-dos-módulos-pipelines)
 
 
-como utilizar 
-para utilizar o gerenciar sempre se contente a cadastrar corretamente rota da base de dados, vai esta cadastrada uma rota pronta de sainda, sem ela a tela de bot náo vai fucionar,
-![alt text](image.png)
+<hr>
 
-cada modulo ou bot tem que que seguir a estrutura abaixo 
+## 📖 Manual de Uso
+Para que o **Hefesto** funcione corretamente e consiga localizar todos os componentes, é necessário cadastrar previamente três ferramentas essenciais: **módulos**, **bots** e **rotas**. Cada uma delas segue regras de configuração específicas exigidas pelo sistema.
 
-modulo:
+<table>
+<tr>
+<td align="left" valign="middle">
+  <h3>🖥️ Visão Geral da Interface Principal</h3>
+  <br>
+  <ul>
+    <li><b>1. Painel de Pipelines:</b> Centraliza as marcações de seleção para definir quais módulos serão executados ao acionar o botão de início.</li>
+    <li><b>2. Painel de Log/Exibição:</b> Área destinada a exibir as informações e o histórico de processamento dos dados utilizados nos pipelines.</li>
+    <li><b>3. Barra de Progresso:</b> Monitora em tempo real o andamento da execução atual, exibindo o módulo ativo e o tempo decorrido de atividade.</li>
+    <li><b>4. Painel de Controle (Botões):</b>
+      <ul>
+        <li><b>Iniciar:</b> Executa todos os pipelines selecionados.</li>
+        <li><b>Limpar:</b> Reseta a janela e limpa as informações da tela.</li>
+        <li><b>BOTs:</b> Abre a interface dedicada às automações; para essa interface funcionar, é preciso ter uma pasta de saída já cadastrada no banco de dados com o nome de variável _Saidas_.</li>
+        <li><b>Configuração:</b> Abre o painel de gerenciamento completo para consultar, cadastrar, editar e apagar rotas, módulos e bots.</li>
+      </ul>
+    </li>
+  </ul>
+</td>
+<td align="center" valign="middle" width="500">
+  <img src="src/assets/img/AP_PRINCIPAL.png" width="500" alt="Interface Principal do Hefesto">
+</td>
+</tr>
+</table>
+<hr>
 
-pytohn: ```
+<table>
+<tr>
+<td align="left" valign="middle">
+  <h3>⚙️ Painel de Configuração</h3>
+  <br>
+  <ul>
+    <li><b>1. Área de Exibição e Alteração (CRUD):</b> Espaço dinâmico inferior onde são carregados os formulários, tabelas e campos para gerenciar os registros selecionados.</li>
+    <li><b>2. Painel de Controle e Filtros:</b>
+      <ul>
+        <li><b>Botões de Ação (Consultar, Editar, Cadastrar, Apagar):</b> Define qual operação do CRUD será executada no sistema.</li>
+        <li><b>Seletores de Entidade (Modulos, bots, Rotas dados):</b> Rádio buttons para escolher qual base de dados ou módulo será o alvo da operação.</li>
+        <li><b>Desmarcar:</b> Limpa os campos da tela de alteração e reseta as seleções de rádio.</li>
+      </ul>
+    </li>
+  </ul>
+</td>
+<td align="center" valign="middle" width="500">
+  <img src="src/assets/img/AP_CONFIGURAR.png" width="500" alt="Interface de Configuração">
+</td>
+</tr>
+</table>
+<hr>
+
+<table>
+<tr>
+<td align="left" valign="middle">
+  <h3>⚙️ Configuração: Ação</h3>
+  <br>
+  <ul>
+    <li><b>1. Painel de Entradas:</b> Centraliza os campos de texto e caixas de seleção dinâmicas para receber ou exibir os valores nas modalidades de <b>editar, cadastrar e apagar</b>.</li>
+    <li><b>2. Painel de Ações (Botões):</b>
+      <ul>
+        <li><b>Pesquisar:</b> Busca no banco de dados os valores correspondentes à chave (código), preenchendo os demais campos automaticamente (fica desabilitado no modo de cadastro).</li>
+        <li><b>Aplicar:</b> Envia e salva as informações processadas no banco de dados.</li>
+        <li><b>Limpar:</b> Reseta a janela de ação e limpa todas as informações preenchidas na tela.</li>
+      </ul>
+    </li>
+  </ul>
+</td>
+<td align="center" valign="middle" width="500">
+  <img src="src/assets/img/AP_CONFIG.png" width="500" alt="Painel de Configuração e Ação">
+</td>
+</tr>
+</table>
+<hr>
+
+<table>
+<tr>
+<td align="left" valign="middle">
+  <h3>🤖 Painel de Automação (BOT)</h3>
+  <br>
+  <ul>
+    <li><b>1. Painel de Seleção:</b> Centraliza as marcações de opção para definir qual bot será executado ao acionar o botão de início (permitindo a seleção de apenas um por vez).</li>
+    <li><b>2. Painel de Controle (Ações):</b>
+      <ul>
+        <li><b>Abrir Arquivo:</b> Abre a planilha Excel base onde o bot coletará os dados de entrada necessários para a execução. É fundamental executá-lo antes de iniciar o bot.</li>
+        <li><b>Iniciar:</b> Executa o bot selecionado na lista.</li>
+        <li><b>Limpar:</b> Reseta a janela e limpa as informações exibidas na tela.</li>
+        <li><b>Desmarcar:</b> Limpa as seleções (flags) ativas.</li>
+      </ul>
+    </li>
+    <li><b>3. Painel de Progresso:</b> Monitora em tempo real o andamento da automação, exibindo o total de valores a serem processados, o progresso atual do pipeline do bot e o tempo decorrido de atividade.</li>
+    <li><b>4. Painel de Controle (Simulador):</b>
+      <ul>
+        <li><b>Continuar:</b> Liberado automaticamente após o término do pipeline, permitindo iniciar a etapa do simulador ao ser clicado.</li>
+        <li><b>Cancelar:</b> Interrompe e cancela a execução atual do processo.</li>
+      </ul>
+    </li>
+  </ul>
+</td>
+<td align="center" valign="middle" width="500">
+  <img src="src/assets/img/AP_BOT.png" width="500" alt="Interface de Automação do Hefesto">
+</td>
+</tr>
+</table>
+
+<hr>
+<br><br>
+
+## 🏗️ Arquitetura dos Módulos Bots (RPA):
+>### 💻 Código-Fonte
+```python
+import pandas as pd
+from pathlib import Path
+
+import time
+import pyperclip as pc
+import pyautogui as pag
+    
+
+class auxiliar:
+    def _conversaUI(self, fase, total_itens, tempo):
+        """
+        Atualiza a interface gráfica do bot em tempo real com o progresso atual,
+        calculando o tempo decorrido e exibindo os itens restantes.
+        """
+        if hasattr(self, 'cancel_event') and self.cancel_event.is_set():
+            return
+            
+        fim = time.perf_counter()
+        tempo_segundos = fim - tempo
+        texto = f"Progresso: {fase}/{total_itens} | faltando: {total_itens - fase} | {tempo_segundos:.0f}s"
+
+        # Verifica de forma segura se o componente de UI e o contador existem antes de atualizar
+        if hasattr(self, 'ancoraUI') and self.ancoraUI:
+            if hasattr(self.ancoraUI, 'contador') and self.ancoraUI.contador:
+                try:
+                    self.ancoraUI.contador.after(0, lambda t=texto: self.ancoraUI.contador.configure(text=t))
+                except Exception:
+                    pass
+
+    def _sleep_verificando(self, segundos, cancel_event, _parar_execucao):
+        """
+        Realiza uma pausa (sleep) fracionada e inteligente, verificando periodicamente
+        se o usuário solicitou a parada ou o cancelamento da execução.
+        """
+        passos = int(segundos * 10)
+        for _ in range(max(1, passos)):
+            if _parar_execucao or (cancel_event and cancel_event.is_set()):
+                return False
+            time.sleep(segundos / max(1, passos))
+        return True
+    
+    def _copiar_e_validar(valor, tentativas=5):
+        """
+        Copia um valor para a área de transferência do sistema operacional e valida
+        repetidamente se foi copiado com sucesso antes de permitir a continuação.
+        """
+        str_valor = str(valor)
+        pc.copy(str_valor)
+        for _ in range(tentativas):
+            if pc.paste() == str_valor:
+                return True
+            pag.sleep(0.1)
+            pc.copy(str_valor)
+        return False
+    
+    def _copiar_e_validar(valor, tentativas=5):
+        str_valor = str(valor)
+        pc.copy(str_valor)
+        for _ in range(tentativas):
+            if pc.paste() == str_valor:
+                return True
+            pag.sleep(0.1)
+            pc.copy(str_valor)
+        return False
+
+class TesteBot:
+    def __init__(self,UI, rotas: dict, entrada: Path, saida: Path):
+        self.ancoraUI = UI
+        self._parar_execucao = False
+        self.velocidade = 0.05
+        self.rota = rotas
+
+        self.saida = saida
+        self.Entrada = str(entrada)
+        pass
+    def Controladora(self, valor: bool = True):
+        self._parar_execucao = valor
+    
+    def _pipeline(self):
+        # 1. Extração de dados
+        try:
+            # Lógica de extração aqui
+            pass
+        except Exception as e:
+            print("Erro na Extração:", e)
+            return False
+
+        # 2. Tratamento / Transformação de dados
+        try:
+            # Lógica de tratamento aqui
+            pass
+        except Exception as e:
+            print("Erro na Tratamento:", e)
+            return False
+
+        # 3. Carga / Salvamento dos dados
+        try:
+            # Lógica de carga aqui
+            # Sempre retorna um valor numérico (int ou float) indicando o total processado/carregado
+            return 1
+        except Exception as e:
+            print("Erro na Carga:", e)
+            return False
+            
+    def _simulador(self, df: pd.DataFrame, cancel_event=None):
+        try:
+            lista = []
+            total_itens = len(df)
+            inicio = time.perf_counter()
+            
+            for fase, (_, registro) in enumerate(df.iterrows(), 1):
+                if self._parar_execucao or (cancel_event and cancel_event.is_set()): break
+                
+                auxiliar._conversaUI(self, fase=fase, total_itens=total_itens, tempo= inicio)
+
+                # Pode colocar esse formato pelo decorrer do codigo, vai parar o script ou pausar para da respito
+                if not auxiliar._sleep_verificando(self.velocidade, self._parar_execucao, cancel_event): break
+
+                """A QUI PODE DA SEQUENCIA NAS INSTRUÇÁO DO pyperclip OU pyautogui"""
+
+                """Aqui vai esta alimentando a lista com as fase para depois validar se mandou tudo correto"""
+                lista.append(fase)
+            return len(lista)
+        except Exception as e:
+            print("simulador", e)
+```
+
+> 1. `auxiliar` (Classe Auxiliar) <br>
+**Responsabilidade:** Agrupar funções utilitárias e ajudantes (*helpers*) secundárias que suportam as regras de negócio ou transformações genéricas de dados.
+
+> 2. `NomeDomodulo` (Classe Principal de Pipeline) <br>
+**Responsabilidade:** Orquestrar o ciclo de vida completo do processamento de dados de produtos, incluindo a simulação, etapas de ETL e controle do fluxo do bot.
+
+<hr>
+
+> ### 📋 Resumo dos Métodos
+| Método | Visibilidade | Responsabilidade |
+| :--- | :--- | :--- |
+| `_conversaUI(fase, total_itens, tempo)` | Privado / Auxiliar | Atualiza a interface gráfica do bot em tempo real com o progresso atual, itens restantes e tempo de execução. |
+| `_sleep_verificando(segundos, cancel_event, _parar_execucao)` | Privado / Auxiliar | Pausa a execução por partes, verificando periodicamente se o usuário cancelou o processo para interromper na hora. |
+| `_copiar_e_validar(valor, tentativas=5)` | Privado / Auxiliar | Copia um valor para a área de transferência e valida repetidamente se foi copiado com sucesso antes de prosseguir. |
+| `__init__()` | Público | Inicializa os atributos da classe, como instâncias do validador/logger e configurações do ambiente. |
+| `Controladora(valor: bool = True)` | Público | Altera o estado de execução do bot (`_parar_execucao`), permitindo interromper processos em andamento. |
+| `_pipeline()` | Público | Executa as fases operacionais do ETL (Extração, Transformação e Carga) com captura individual de exceções por etapa. |
+| `_Simulador(df, cancel_event=None)` | Público | Controla o loop principal de execução linha a linha do DataFrame, gerenciando o tempo de processamento, checagem contínua de cancelamento, atualização de interface e execução das instruções de automação. |
+
+---
+> ### 🔄 Fluxo de Execução (Diagrama ETL)
+```mermaid
+graph TD
+    A[Início: ExecutarBot] --> B[_pipeline]
+    
+    subgraph ETL Pipeline
+        B --> C[Etapa 1: Extract]
+        C -- Sucesso --> D[Etapa 2: Transform / _Simulador]
+        C -- Erro --> LOG1[self.validador.registrar_log 'Extract'] --> FAIL[Retorna False]
+        
+        D -- Sucesso --> E[Etapa 3: Load]
+        D -- Erro --> LOG2[self.validador.registrar_log 'Transform'] --> FAIL
+        
+        E -- Sucesso --> SUCCESS[Retorna Valor Numérico]
+        E -- Erro --> LOG3[self.validador.registrar_log 'Load'] --> FAIL
+    end
+```
+
+## 🏗️ Arquitetura dos Módulos Pipelines:
+>### 💻 Código-Fonte
+```python
+from src.lib.valerros import ValidarErros
+from datetime import datetime as dt
+from pathlib import Path
+
 class auxiliares:
     def MontarRota(self, dictRota: dict):
         listBase = []       
@@ -34,6 +344,7 @@ class NomeModulo(auxiliares):
     def pipeline(self):
         """Resto do seu codigo"""
         return True
+
     def carregamento(self):
         lista_de_logs = []
         try:
@@ -56,39 +367,53 @@ class NomeModulo(auxiliares):
             return False
     def Saida(self):
         return [self.caminho]
+
 ```
+> 1.  `auxiliar` (Classe Auxiliar) <br>
+**Responsabilidade:** Concentra funções secundárias e operacionais (como validações, formatação de tipos, sanitização de strings e tratamento de exceções) que dão suporte à execução das regras de negócio do módulo de ETL, evitando duplicação de código.
 
-bot:
+> 2. `NomeModulo` (Classe Principal de Pipeline) <br>
+ **Responsabilidade:** Responsável por localizar, ler e mapear as bases de dados de origem, executar a sequência de transformações necessárias e salvar/entregar os dados processados na camada de saída ou no destino final do pipeline.
 
-class auxiliar:
-    def conversaUI(self, fase, total_itens, tempo_segundos):
-        if hasattr(self, 'cancel_event') and self.cancel_event.is_set():
-            return
+<hr>
 
-        texto = f"Progresso: {fase}/{total_itens} | faltando: {total_itens - fase} | {tempo_segundos:.0f}s"
+>### 📋 Resumo dos Métodos
+| Método | Visibilidade | Responsabilidade |
+| :--- | :--- | :--- |
+| `__init__()` | Público | Inicializa os atributos da classe, como instâncias do validador/logger e configurações do ambiente. |
+| `pipeline()` | Público | Executa as fases operacionais do ETL (Extract, Transform, Load) com captura individual de exceções por etapa. |
+| `carregamento(self)` | Público | Mapeia e valida os arquivos e bases de entrada do pipeline, consolidando os metadados em um dicionário para alimentação da interface (GUI).|
+| `Saida(self)` | Público |  Entrega a rota do arquivo gerado pelo pipeline|
 
-        if hasattr(self, 'ancoraUI') and self.ancoraUI:
-            if hasattr(self.ancoraUI, 'contador') and self.ancoraUI.contador:
-                try:
-                    self.ancoraUI.contador.after(0, lambda t=texto: self.ancoraUI.contador.configure(text=t))
-                except Exception:
-                    pass
-    def _copiar_e_validar(valor, tentativas=5):
-        str_valor = str(valor)
-        pc.copy(str_valor)
-        for _ in range(tentativas):
-            if pc.paste() == str_valor:
-                return True
-            pag.sleep(0.1)
-            pc.copy(str_valor)
-        return False
-class NomeDomodulo:
-    def __init__(self,UI, rotas: dict, entrada: Path, saida: Path):
-        self.ancoraUI = UI
-        self._parar_execucao = False
-        self.velocidade = 0.05
-        self.rota = rotas
 
-        self.saida = saida
-        self.Entrada = str(entrada)
-        pass
+<hr>
+
+>### 🔄 Fluxo de Execução (Diagrama ETL)
+```mermaid
+graph TD
+    INICIO([Instanciação: ModulosETL]) --> INIT[__init__: Configura Validador e Estado]
+    
+    subgraph ModulosETL - Herda de auxiliar
+        INIT --> PREP[carregamento: Mapeia Entradas / Alimenta GUI]
+        PREP --> PIPE[Executar pipeline]
+
+        subgraph Processo de Pipeline ETL
+            PIPE --> EXTRACT[Etapa 1: Extract]
+
+            EXTRACT -- Sucesso --> TRANSFORM[Etapa 2: Transform]
+            EXTRACT -- Except Exception as e --> LOG1[self.validador.registrar_log e, 'Extract'] --> FAIL[Retorna False]
+
+            TRANSFORM -- Sucesso --> LOAD[Etapa 3: Load]
+            TRANSFORM -- Except Exception as e --> LOG2[self.validador.registrar_log e, 'Transform'] --> FAIL
+
+            LOAD -- Sucesso --> SUCCESS[Retorna True]
+            LOAD -- Except Exception as e --> LOG3[self.validador.registrar_log e, 'Load'] --> FAIL
+        end
+
+        SUCCESS --> OUTLOG[outputLog: Mapeia Saídas / Alimenta GUI]
+        FAIL --> OUTLOG
+    end
+
+    OUTLOG --> FIM([Fim da Execução])
+```
+<hr>

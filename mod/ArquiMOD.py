@@ -12,7 +12,7 @@ class auxiliares:
         return listBase
 
     pass
-class TesteMod(auxiliares):
+class AquiMod(auxiliares):
     def __init__(self, rotas):
         self.rotas = self.MontarRota(dictRota= rotas)
         self.list_path = self.rotas[:-1]

@@ -87,6 +87,6 @@ class ExecuteBot:
                 msgbox.showwarning("Nenhuma Execução", "Não há nenhuma execução pendente...")
                 return
 
-            self.instancia_atual._Simulador(self.valor_atual, cancel_event=cancel_event)
+            self.instancia_atual._simulador(self.valor_atual, cancel_event=cancel_event)
         except Exception as e:
             validador.registrar_log(e, "Simulador")
