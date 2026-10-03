@@ -3,7 +3,7 @@
 <tr>
 <!-- Lado Esquerdo: Frase, Links e Badges -->
 <td align="center" valign="middle">
-    <h3 align="center">GERENCIAMENTO DE AUTOMAÇÃO 🦥</h3>
+    <h3 align="center">Hefesto 🦥</h3>
     <h3>"Deixe o robô trabalhar enquanto você toma um café."</h3>
     <h2>
         <a href="https://www.linkedin.com/in/wesley-henrique22" target="_blank" rel="noopener noreferrer">LinkedIn</a> |
