@@ -3,4 +3,4 @@
 *log_erros.txt
 build/
 dist/
-main.spec
+*main.spec
