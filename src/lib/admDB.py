@@ -43,7 +43,7 @@ class ErroDB:
         query_insert = f"INSERT INTO {self.NomeTabela} (CHAVE, DESC) VALUES (?, ?)"
         query_final = f"SELECT * FROM {self.NomeTabela}"
 
-        with sqlite3.connect(self.erroDB) as conn:
+        with sqlite3.connect(str(self.erroDB)) as conn:
             cursor = conn.cursor()
             cursor.execute(self.__CriarTabela())
 
@@ -78,7 +78,7 @@ class KeysDB:
         """
         return query
     def __conectar(self, sql: str, parametros: tuple = (), retornar_linha: bool= False):
-        with sqlite3.connect(self.DataBase) as conn:
+        with sqlite3.connect(str(self.DataBase)) as conn:
             cursor = conn.cursor()
 
             cursor.execute(self.__CriarTabela())
@@ -130,7 +130,7 @@ class path_DB:
         return query
 
     def __conectar(self, sql: str, parametros: tuple = (), retornar_linha: bool= False):
-        with sqlite3.connect(self.DataBase) as conn:
+        with sqlite3.connect(str(self.DataBase)) as conn:
             cursor = conn.cursor()
 
             cursor.execute(self.__CriarTabela())
@@ -194,7 +194,7 @@ class CRUD_DB:
         """
         return query
     def __conectar(self, sql: str, parametros: tuple = (), retornar_linha: bool= False):
-        with sqlite3.connect(self.DataBase) as conn:
+        with sqlite3.connect(str(self.DataBase)) as conn:
             cursor = conn.cursor()
 
             cursor.execute(self.__CriarTabela())

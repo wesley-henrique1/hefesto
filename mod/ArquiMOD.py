@@ -4,13 +4,16 @@ import pandas as pd
 
 class auxiliares:
     def MontarRota(self, dictRota: dict):
-        listBase = []       
-        variaveis_validas = {"_8596", "_Saidas_"}
-        for item in dictRota.values():
-            if item.get("VARIAVEL") in variaveis_validas:
-                listBase.append(item.get("PATH"))
-        return listBase
+        variaveis_validas = ["_8628", "_8664", "_Saidas_"]
 
+        mapa_rotas = {}
+        for item in dictRota.values():
+            var = item.get("VARIAVEL")
+            if var in variaveis_validas:
+                mapa_rotas[var] = item.get("PATH")
+                
+        listBase = [mapa_rotas.get(var) for var in variaveis_validas if var in mapa_rotas]
+        return listBase
     pass
 class AquiMod(auxiliares):
     def __init__(self, rotas):

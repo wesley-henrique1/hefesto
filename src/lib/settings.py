@@ -4,15 +4,22 @@ import os
 
 class _Caminho:
     if getattr(sys, 'frozen', False):
-        __diretorioBase = Path(sys.executable).parent
+        __diretorioExterno = Path(sys.executable).parent
+        __diretorioInterno = Path(sys._MEIPASS)
     else:
-        __diretorioBase = Path(__file__).parent.parent.parent
+        __diretorioExterno = Path(__file__).parent.parent.parent
+        __diretorioInterno = __diretorioExterno
 
-    PastaBot = __diretorioBase / "bot"
-    PastaMod = __diretorioBase / "mod"
+    PastaBot = __diretorioExterno / "bot"
+    PastaMod = __diretorioExterno / "mod"
+    PastaLog = __diretorioExterno / "log"
+    bancoDados = __diretorioExterno / "src" / "db"
 
-    assets = __diretorioBase / "src" / "assets"
-    bancoDados = __diretorioBase / "src" / "db"
+    assets = __diretorioInterno / "src" / "assets"
+    PastaBot.mkdir(parents=True, exist_ok=True)
+    PastaMod.mkdir(parents=True, exist_ok=True)
+    PastaLog.mkdir(parents=True, exist_ok=True)
+    bancoDados.mkdir(parents=True, exist_ok=True)
 
 class _Icone(_Caminho):
     icones = _Caminho.assets / "icon"
@@ -21,9 +28,8 @@ class _Icone(_Caminho):
     caixas = icones / "caixas.ico"
     blocoNotas = icones / "bloco_notas.ico"
     engrenagem = icones / "engrenagem.ico"
-    perfil = icones/ "perfil.ico"
+    perfil = icones / "perfil.ico"
 
-    pass
 class _Imagens(_Caminho):
     imagem = _Caminho.assets / "img"
 
@@ -32,19 +38,16 @@ class _Imagens(_Caminho):
     engrenagem = imagem / "engrenagem.png"
     logoPy = imagem / "logo_python.png"
     perfil = imagem / "perfil.png"
-    
-    pass
+
 class _DataBase(_Caminho):
     dataBase = _Caminho.bancoDados
 
     errosdb = dataBase / "errosDb.db"
-
     keys = dataBase / "keysDB.db"
     botdb = dataBase / "botDB.db"
     modDb = dataBase / "modDB.db"
     taskDb = dataBase / "tarefadb.db"
     rotadb = dataBase / "rotasdb.db"
-    pass
 
 class _DataJson(_Caminho):
     json = _Caminho.assets / "json"

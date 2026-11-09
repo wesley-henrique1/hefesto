@@ -6,6 +6,7 @@ from PIL import Image
 
 import customtkinter as ctk
 import webbrowser
+import threading
 import math
 
 validador = ModularErros(fonte= "GUI - Bots")
@@ -17,13 +18,20 @@ class __auxiliares:
                 estado_atual = dados["__estado__"].get()           
                 if estado_atual == "1":
                     listIniciar.append(item)
+
         if not listIniciar:
             msgbox.showwarning(
                 "Nenhuma Seleção",
                 "Nenhum módulo foi selecionado para iniciar.\n\nPor favor, escolha ao menos uma opção antes de prosseguir."
             )
             return
-        root.after(10, lambda: executarMod.executeMOD(UI= self, listaMOD= listIniciar))
+        self.btIniciar.configure(state="disabled")
+        def tarefa_paralela():
+            try:
+                executarMod.executeMOD(UI=self, listaMOD=listIniciar)
+            finally:
+                self.btIniciar.after(0, lambda: self.btIniciar.configure(state="normal"))
+        threading.Thread(target=tarefa_paralela, daemon=True).start()
         pass
     def FUNC_Limpar(self):
         try:
@@ -36,7 +44,6 @@ class __auxiliares:
             self.logArquivo.configure(state="disabled")        
         except Exception as e:
             validador.registrar_log(e, "FUNC_Limpar")
-
     def FUNC_bot(self):
         botGUI.BotsUI()
     def FUNC_config(self):
@@ -73,7 +80,7 @@ class __auxiliares:
         self._localizador()
         
     def AbrirGIT(self, event=None):
-        webbrowser.open("https://github.com/wesley-henrique1")
+        webbrowser.open("https://github.com/wesley-henrique1/hefesto")
 
 class Main(__auxiliares):
     def __init__(self):
