@@ -95,30 +95,35 @@ class executeMOD:
         self.__GravarEmArquivo(completo)
     def __MontarCarregamento(self, log: list):
         listSafe = set()
-        cabecalho = f"{'ARQUIVO':^46} | {'DATA':^12} | {'HORAS':^10}"
+        cabecalho = f"{'ARQUIVO':^44} | {'DATA':^10} | {'HORAS':^8}"
         divisor = "-" * len(cabecalho)
         tabela = f"{cabecalho}\n{divisor}\n"
 
         for dictFase in log:
             arquivo = dictFase.get("ARQUIVO", "Sem Registro...")
-            if len(arquivo) > 43:
-                arquivo = arquivo[:43] + "..."
+            if len(arquivo) > 40:
+                arquivo = arquivo[:40] + "..."
             if arquivo in listSafe:
                 continue
+                
             data = dictFase.get("DATA", "--/--/----")
             hora = dictFase.get("HORAS", "--:--:--")
 
-            tabela += f"{arquivo:<46} | {data:^12} | {hora:^10}\n"
+            tabela += f"{arquivo:<44} | {data:^10} | {hora:^8}\n"
             listSafe.add(arquivo)
 
         widget_log = self.ancoraUI.logArquivo
         def atualizar_texto():
             widget_log.configure(state="normal")
+            try:
+                widget_log.configure(font=("Consolas", 13))
+            except Exception:
+                pass
             widget_log.delete("0.0", "end")
             widget_log.insert("0.0", tabela)
             widget_log.configure(state="disabled")
 
-        self.ancoraUI.contador.after(0, atualizar_texto)    
+        self.ancoraUI.contador.after(0, atualizar_texto)
     def __TratarRota(self):
         for item in self.dictPath.values():
             caminho = item.get("PATH")
