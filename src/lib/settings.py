@@ -1,14 +1,17 @@
 from pathlib import Path
 import sys
-import os
 
 class _Caminho:
     if getattr(sys, 'frozen', False):
-        __diretorioExterno = Path(sys.executable).parent
+        __diretorioExterno = Path(sys.executable).resolve().parent
         __diretorioInterno = Path(sys._MEIPASS)
     else:
-        __diretorioExterno = Path(__file__).parent.parent.parent
+        __diretorioExterno = Path(__file__).resolve().parent.parent.parent
         __diretorioInterno = __diretorioExterno
+
+    _raiz_str = str(__diretorioExterno)
+    if _raiz_str not in sys.path:
+        sys.path.insert(0, _raiz_str)
 
     PastaBot = __diretorioExterno / "bot"
     PastaMod = __diretorioExterno / "mod"

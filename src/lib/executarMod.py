@@ -5,7 +5,7 @@ from pathlib import Path
 import datetime as dt
 import importlib.util
 import time
-
+import sys
 validador = modErros.ModularErros(fonte="MOD - EXECUTOR")
 
 
@@ -96,8 +96,8 @@ class executeMOD:
     def __MontarCarregamento(self, log: list):
         listSafe = set()
         cabecalho = f"{'ARQUIVO':^46} | {'DATA':^12} | {'HORAS':^10}"
-        divisor = "-" * len(cabecalho) + "\n"
-        tabela = cabecalho + "\n" + divisor
+        divisor = "-" * len(cabecalho)
+        tabela = f"{cabecalho}\n{divisor}\n"
 
         for dictFase in log:
             arquivo = dictFase.get("ARQUIVO", "Sem Registro...")
@@ -155,15 +155,17 @@ class executeMOD:
                     return None
 
                 try:
-                    spec = importlib.util.spec_from_file_location(nomeModulo, str(caminho))
+                    nome_modulo_completo = f"mod.{nomeModulo}"
+                    spec = importlib.util.spec_from_file_location(nome_modulo_completo, str(caminho))
                     if not (spec and spec.loader):
                         msgbox.showerror(
                             "Erro de Carregamento",
-                            f"Não foi possível carregar as especificações do módulo '{nomeModulo}'."
+                            f"Não foi possível carregar as especificações do módulo '{nome_modulo_completo}'."
                         )
                         continue
 
                     moduloCarregado = importlib.util.module_from_spec(spec)
+                    sys.modules[nome_modulo_completo] = moduloCarregado
                     spec.loader.exec_module(moduloCarregado)
 
                     if not hasattr(moduloCarregado, nomeClasse):
