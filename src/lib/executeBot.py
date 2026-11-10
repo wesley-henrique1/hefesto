@@ -1,9 +1,10 @@
-from src.lib.settings import _Caminho, _DataBase
-from src.lib.admDB import CRUD_DB, KeysDB
+from src.lib.settings import _Caminho
+from src.lib.admDB import CRUD_DB
 from src.lib.modErros import ModularErros
 from tkinter import messagebox as msgbox
 from pathlib import Path
 import importlib.util
+import sys
 
 validador = ModularErros(fonte= "BOT - EXECUTOR")
 class ExecuteBot:
@@ -44,10 +45,12 @@ class ExecuteBot:
             return None
 
         try:
-            spec = importlib.util.spec_from_file_location(nomeModulo, caminho)
+            nome_completo_bot = f"bot.{nomeModulo}"
+            spec = importlib.util.spec_from_file_location(nome_completo_bot, caminho)
 
             if spec and spec.loader:
                 moduloCarregado = importlib.util.module_from_spec(spec)
+                sys.modules[nome_completo_bot] = moduloCarregado
                 spec.loader.exec_module(moduloCarregado)
                 
                 if hasattr(moduloCarregado, nomeClasse):
