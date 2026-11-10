@@ -2,6 +2,7 @@ from src.lib.admDB import CRUD_DB, path_DB
 from src.lib.executeBot import ExecuteBot
 from src.lib.modErros import ModularErros
 from src.lib.settings import _Icone, _Caminho
+import math
 
 from tkinter import messagebox as msgbox
 from pathlib import Path
@@ -239,7 +240,8 @@ class BotsUI(__auxiliares):
 
         root = ctk.CTkToplevel()
         root.title("AUTOMAÇÃO")
-        root.geometry("540x350")
+        # Altura ajustada para 400px para acomodar até 6 bots sem espremer
+        root.geometry("540x400")
         root.configure(fg_color=self.marromClaro)
         root.iconbitmap(_Icone.bigorna)
         root.resizable(False, False)
@@ -285,6 +287,7 @@ class BotsUI(__auxiliares):
             border_color=self.preto,
         )
 
+        # RadioButtons criados com tamanho de fonte adequado para 3 colunas
         for dicionario in self.MapaBox:
             for registro in dicionario.keys():
                 boxModulo = ctk.CTkRadioButton(
@@ -296,12 +299,11 @@ class BotsUI(__auxiliares):
                     hover_color=self.vermelho,
                     fg_color=self.vermelho,
                     border_color=self.preto,
-                    border_width_unchecked=3,
-                    font=(self.familia, 11, "bold"),
+                    border_width_unchecked= 3,
+                    font=(self.familia, 12, "bold"),
                     command=lambda: self._LimparWidget(listBT=[self.btIniciar, self.btLimpar], tesk='normal'),
                 )
                 dicionario[registro]['checkbox'] = boxModulo
-
     def __clicaveis(self, tela):
         self.btAbrir = ctk.CTkButton(
             self.Painel,
@@ -367,34 +369,48 @@ class BotsUI(__auxiliares):
             border_width=3,
             command=self._cancelar_execucao
         )
-
     def __localizador(self):
-        self.Painel.place_configure(relx=0.02, rely=0.02, relheight=0.40, relwidth=0.96)
-        self.Retorno.place_configure(relx=0.02, rely=0.44, relheight=0.54, relwidth=0.96)
+        # 1. Estrutura dos Painéis principais
+        self.Painel.place_configure(relx=0.02, rely=0.02, relheight=0.48, relwidth=0.96)
+        self.Retorno.place_configure(relx=0.02, rely=0.52, relheight=0.46, relwidth=0.96)
 
-        self.contagem.place_configure(relx=0.02, rely=0.04, relheight=0.20, relwidth=0.96)
-        self.contador.place_configure(relx=0.02, rely=0.26, relheight=0.20, relwidth=0.96)
+        # 2. Painel de Retorno (inferior)
+        self.contagem.place_configure(relx=0.02, rely=0.06, relheight=0.22, relwidth=0.96)
+        self.contador.place_configure(relx=0.02, rely=0.32, relheight=0.22, relwidth=0.96)
+        self.continuar.place_configure(relx=0.26, rely=0.66, relheight=0.24, relwidth=0.22)
+        self.cancelar.place_configure(relx=0.52, rely=0.66, relheight=0.24, relwidth=0.22)
 
-        self.btAbrir.place_configure(relx=0.02, rely=0.72, relheight=0.22, relwidth=0.28)
-        self.btIniciar.place_configure(relx=0.32, rely=0.72, relheight=0.22, relwidth=0.20)
-        self.btLimpar.place_configure(relx=0.54, rely=0.72, relheight=0.22, relwidth=0.20)
-        self.desmarcar.place_configure(relx=0.76, rely=0.72, relheight=0.22, relwidth=0.22)
+        # 3. Barra fixa de botões no rodapé do Painel (rely=0.76)
+        self.btAbrir.place_configure(relx=0.02, rely=0.76, relheight=0.20, relwidth=0.28)
+        self.btIniciar.place_configure(relx=0.32, rely=0.76, relheight=0.20, relwidth=0.20)
+        self.btLimpar.place_configure(relx=0.54, rely=0.76, relheight=0.20, relwidth=0.20)
+        self.desmarcar.place_configure(relx=0.76, rely=0.76, relheight=0.20, relwidth=0.22)
 
-        self.continuar.place_configure(relx=0.26, rely=0.68, relheight=0.24, relwidth=0.22)
-        self.cancelar.place_configure(relx=0.52, rely=0.68, relheight=0.24, relwidth=0.22)
-
+        # 4. Distribuição dinâmica em 3 colunas verticais
         total = len(self.MapaBox)
-        limite_por_coluna = 2 if total <= 4 else 3
+        # Calcula quantos itens cabem por coluna (mínimo de 2 por coluna)
+        limite_por_coluna = max(2, math.ceil(total / 3))
 
-        startX = 0.03
-        startY = 0.08
+        colunas_x = [0.02, 0.35, 0.68]
+        col_index = 0
+        posY = 0.06
+        espacamento_y = 0.22
+        altura_item = 0.18
 
         for index, dicionario in enumerate(self.MapaBox):
+            # Muda para a próxima coluna quando atinge o limite vertical
+            if index > 0 and index % limite_por_coluna == 0 and col_index < 2:
+                col_index += 1
+                posY = 0.06
+
+            posX = colunas_x[col_index]
+
             for registro in dicionario.keys():
-                dicionario[registro]['checkbox'].place(
-                    rely=startY, relx=startX, relwidth=0.46, relheight=0.22
+                dicionario[registro]['checkbox'].place_configure(
+                    relx=posX,
+                    rely=posY,
+                    relwidth=0.30,
+                    relheight=altura_item
                 )
-                startY += 0.28
-                if (index + 1) == limite_por_coluna:
-                    startX = 0.51
-                    startY = 0.08
+
+            posY += espacamento_y
